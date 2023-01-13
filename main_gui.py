@@ -3,19 +3,19 @@ import plotly.express as px
 import pandas as pd
 
 df = px.data.iris()
-col_names = ['s_len', 's_wid', 'p_len', 'p_wid']
+col_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
 app = Dash(__name__)
 
 
 app.layout = html.Div(children=[
-    html.H1(children='callback practice'),
+    html.H1(children='callback practice : scatter plot for the iris data'),
     html.Div([
-        'X-var:',
-        dcc.Dropdown(id='xvar_name', value=col_names[0], placeholder='Select X-axis col'),
+        'X-variable',
+        dcc.Dropdown(id='xvar_name', options=col_names, value=col_names[0], placeholder='Select X-axis col'),
         ], style={'width': '30%', 'display': 'inline-block'}),
     html.Div([
-        'Y-var:',
-        dcc.Dropdown(id='yvar_name', value=col_names[1], placeholder='Select X-axis col'),
+        'Y-variable',
+        dcc.Dropdown(id='yvar_name', options=col_names, value=col_names[1], placeholder='Select X-axis col'),
         ], style={'width': '30%', 'display': 'inline-block'}),
     html.Br(),
     html.Br(),
