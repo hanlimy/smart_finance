@@ -16,9 +16,9 @@ def get_nasdaq_quandl():
     df_oil = quandl.get("OPEC/ORB", trim_start=date_start, trim_end=date_end)
 
     df_gold.to_csv('{}/df_gold.csv'.format(path_output))
-
-    plt.rcParams["figure.figsize"] = (14, 4)
-    plt.rcParams['axes.grid'] = True
+    df_silver.to_csv('{}/df_silver.csv'.format(path_output))
+    df_copper.to_csv('{}/df_copper.csv'.format(path_output))
+    df_oil.to_csv('{}/df_oil.csv'.format(path_output))
 
 
 def get_kosdaq_fdr():
@@ -43,4 +43,4 @@ def get_kor_pdr():
     print(df.tail())
 
 
-get_kor_pdr()
+get_nasdaq_quandl()
