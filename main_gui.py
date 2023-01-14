@@ -28,16 +28,16 @@ style_tab = {'height': 20, 'width': 100}
 style_ddn = {'width': 140, 'display': 'inline-block'}
 style_btn = {'height': 20, 'width': 100, 'display': 'inline-block'}
 style_txt_b14 = {'color': 'blue', 'fontSize': 14}
-style_table = {'height': '600px', 'overflowX': 'scroll'}
+style_table = {'height': '400px', 'overflowX': 'scroll'}
 style_cell = {'height': '90', 'minWidth': '140px', 'width': '140px', 'maxWidth': '140px', 'whiteSpace': 'normal'},
 
 app.layout = html.Div([
-    dcc.Tabs(id="tabs", value='tab1', children=[
+    dcc.Tabs(id="tabs", value='tab2', children=[
         dcc.Tab(label='prediction', value='tab1', style=style_tab, selected_style=style_tab),
         dcc.Tab(label='analysis', value='tab2', style=style_tab, selected_style=style_tab),
         dcc.Tab(label='ex_price1', value='tab3', style=style_tab, selected_style=style_tab),
         dcc.Tab(label='ex_price2', value='tab4', style=style_tab, selected_style=style_tab),
-        dcc.Tab(label='ex_iris_from_icloud', value='tab5', style=style_tab, selected_style=style_tab),
+        dcc.Tab(label='ex_iris', value='tab5', style=style_tab, selected_style=style_tab),
     ]),
     html.Div(id='tabs_content')
 ])
@@ -124,7 +124,7 @@ tab1 = html.Div([
     Input('tab1_box1_btn1', 'value'),
     [State('tab1_box1_ddn{}'.format(num), 'value') for num in range(1, 7)]
 )
-def action_update_graph(btn, dnn1, dnn2, dnn3, dnn4, dnn5, dnn6):
+def action(btn, dnn1, dnn2, dnn3, dnn4, dnn5, dnn6):
     print('-' * 100)
 
     return tab1_box1_table
@@ -179,8 +179,9 @@ tab2_box1_table = html.Div([
     )
 ])
 
-tab2_box1_graph = html.Div([
-    dcc.Graph(id='tab3_box1_graph')
+tab2_box2_graph = html.Div([
+    html.Button('draw_graph', id='tab2_box2_btn', n_clicks=0, style=style_btn),
+    dcc.Graph(id='tab2_box2_graph'),
 ])
 
 tab2 = html.Div([
@@ -188,7 +189,9 @@ tab2 = html.Div([
     tab2_box1_dnns,
     html.Br(),
     tab2_box1_table,
-    tab2_box1_graph
+    html.Br(),
+    tab2_box2_graph,
+
 ])
 
 
@@ -197,20 +200,27 @@ tab2 = html.Div([
     Input('tab2_box1_btn1', 'value'),
     [State('tab2_box1_ddn{}'.format(num), 'value') for num in range(1, 7)]
 )
-def action_update_graph(btn, dnn1, dnn2, dnn3, dnn4, dnn5, dnn6):
+def action(btn, dnn1, dnn2, dnn3, dnn4, dnn5, dnn6):
 
     return tab2_box1_table
 
 
 @app.callback(
     Output('tab2_box2_graph', 'figure'),
-    Input('tab2_box2_btn_show', 'n_clicks'),
+    Input('tab2_box2_btn', 'n_clicks'),
 )
-def action_update_graph(btn):
-    val_x = 'Date'
-    val_y = list(df_copper.columns)
-    fig = px.line(df_copper, x=val_x, y=val_y, width=1000, height=700)
-    fig.update_layout(title_text='copper', title_font_size=30)
+def action(btn):
+
+    list_x = [1,2,3,4,5,6,7,8]
+    list_y = [100,100,100,100,200,200,200,200]
+    list_size = [10,20,30,30,20,20,30,30]
+    list_color = [1,1,1,1,0,0,0.5,0.5]
+    fig = px.scatter(
+        x=list_x, y=list_y, size=list_size, color=list_color,
+        hover_name=None, log_x=False, size_max=None,
+        width=800, height=400
+    )
+    fig.update_layout(title_text='ppid in df_study', title_font_size=30)
     return fig
 
 
