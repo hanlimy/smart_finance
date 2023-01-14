@@ -124,6 +124,7 @@ tab1 = html.Div([
     [State('tab1_box1_ddn{}'.format(num), 'value') for num in range(1, 7)]
 )
 def action_update_graph(btn, dnn1, dnn2, dnn3, dnn4, dnn5, dnn6):
+    print('-' * 100)
 
     return tab1_box1_table
 
@@ -157,39 +158,47 @@ tab2_box1_dnns = html.Div([
     ], style=style_ddn),
 ])
 
-tab2_box1 = html.Div([
-    html.H1('analysis'),
-    html.Div(id='tab2_box1_dnns', children=[tab2_box1_dnns]),
-    html.Br(),
+tab2_box1_table = html.Div([
     html.Button('show', id='tab1_box1_btn1', n_clicks=0, style=style_btn),
-    html.Br(),
-    html.Div([tab1_box1_table])
+    dash_table.DataTable(
+        id='tab1_box1_table',
+        data=df_copper.to_dict('records'),
+        columns=[{'name': idx, 'id': idx, 'deletable': True} for idx in df_copper.columns],
+        filter_action='native',  # 'native', 'custom'
+        # filter_query='',
+        sort_action='native',  # 'native', 'custom'
+        sort_mode='multi',
+        # sort_by=['Date']
+        row_deletable=False,
+        # page_current=0,
+        # page_size=1000,
+        page_action='native',   # 'native', 'custom'
+        style_table=style_table,
+        style_cell=style_cell,
+    )
 ])
 
-tab2_box2 = html.Div([
-    html.Button('show', id='tab2_box2_btn_show', n_clicks=0, style=style_btn),
-    dcc.Graph(id='tab2_box2_graph')
+tab2_box1_graph = html.Div([
+    dcc.Graph(id='tab3_box1_graph')
 ])
 
 tab2 = html.Div([
     html.H1('trace : top vs bottom wf'),
-    tab2_box1,
+    tab2_box1_dnns,
     html.Br(),
-    tab2_box2,
+    tab2_box1_table,
+    tab2_box1_graph
 ])
 
 
 @app.callback(
-    Output('tab2_box1_graph', 'figure'),
-    Input('tab2_box1_ddn_material', 'value'),
+    Output('tab2_box1_table', 'children'),
+    Input('tab2_box1_btn1', 'value'),
+    [State('tab2_box1_ddn{}'.format(num), 'value') for num in range(1, 7)]
 )
-def action_update_graph(material):
-    val_x = 'Date'
-    df_tmp = box_df_material[material]
-    val_y = list(df_tmp.columns)
-    fig = px.line(df_tmp, x=val_x, y=val_y, width=1000, height=700)
-    fig.update_layout(title_text=material, title_font_size=30)
-    return fig
+def action_update_graph(btn, dnn1, dnn2, dnn3, dnn4, dnn5, dnn6):
+
+    return tab2_box1_table
 
 
 @app.callback(
@@ -231,9 +240,8 @@ tab3 = html.Div([
 )
 def action_update_graph(material):
     val_x = 'Date'
-    df_tmp = box_df_material[material]
-    val_y = list(df_tmp.columns)
-    fig = px.line(df_tmp, x=val_x, y=val_y, width=1000, height=700)
+    val_y = list(box_df_material[material].columns)
+    fig = px.line(box_df_material[material], x=val_x, y=val_y, width=1000, height=700)
     fig.update_layout(title_text=material, title_font_size=30)
     return fig
 
@@ -264,7 +272,6 @@ tab4_box2 = html.Div([
 ])
 
 tab4 = html.Div([
-    html.H1('trace : top vs bottom wf'),
     tab4_box1,
     html.Br(),
     tab4_box2,
