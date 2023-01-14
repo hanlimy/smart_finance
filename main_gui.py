@@ -12,12 +12,15 @@ box_df_material = dict()
 for mat in list_file_mat:
     box_df_material[mat] = pd.read_csv('smart_collector/output_data/df_{}.csv'.format(mat))
 df_copper = pd.read_csv('smart_collector/output_data/df_copper.csv')
+
 df_study = pd.read_csv('smart_collector/output_data/df_study.csv')
+list_col_step = [step for step in df_study.columns if step not in ['lot_wf', 'et', 'chip_x_pos', 'chip_y_pos']]
 
 list_info_line = ['LLLA', 'LLLB', 'LLLC']
 list_info_proc = ['PPPA', 'PPPB', 'PPPC']
 list_info_lot = sorted(set([str(lot_wf).split('_')[0] for lot_wf in df_study['lot_wf']]))
 list_info_wf = ['0' + str(wf) if wf < 10 else wf for wf in range(1, 25)]
+
 
 ########################################################################################################################
 
@@ -27,7 +30,7 @@ app.config.suppress_callback_exceptions = True
 style_tab = {'height': 20, 'width': 100}
 style_ddn = {'width': 140, 'display': 'inline-block'}
 style_btn = {'height': 20, 'width': 100, 'display': 'inline-block'}
-style_txt_b14 = {'color': 'blue', 'fontSize': 14}
+style_txt_blue14 = {'color': 'blue', 'fontSize': 14}
 style_table = {'height': '400px', 'overflowX': 'scroll'}
 style_cell = {'height': '90', 'minWidth': '140px', 'width': '140px', 'maxWidth': '140px', 'whiteSpace': 'normal'},
 
@@ -65,27 +68,27 @@ def render_content(tab):
 
 tab1_box1_dnns = html.Div([
     html.Div([
-        html.H1('line', style=style_txt_b14),
+        html.H1('line', style=style_txt_blue14),
         dcc.Dropdown(id='tab1_box1_ddn1', options=list_info_line, value=list_info_line[0], placeholder='select...'),
     ], style=style_ddn),
     html.Div([
-        html.H1('Proc', style=style_txt_b14),
+        html.H1('Proc', style=style_txt_blue14),
         dcc.Dropdown(id='tab1_box1_ddn2', options=list_info_proc, value=list_info_proc[0], placeholder='select...'),
     ], style=style_ddn),
     html.Div([
-        html.H1('lot_target', style=style_txt_b14),
+        html.H1('lot_target', style=style_txt_blue14),
         dcc.Dropdown(id='tab1_box1_ddn3', options=list_info_lot, value=list_info_lot[0], placeholder='select...'),
     ], style=style_ddn),
     html.Div([
-        html.H1('wf_target', style=style_txt_b14),
+        html.H1('wf_target', style=style_txt_blue14),
         dcc.Dropdown(id='tab1_box1_ddn4', options=list_info_wf, value=list_info_wf[0], placeholder='select...'),
     ], style=style_ddn),
     html.Div([
-        html.H1('lot_base', style=style_txt_b14),
+        html.H1('lot_base', style=style_txt_blue14),
         dcc.Dropdown(id='tab1_box1_ddn5', options=list_info_lot, value=list_info_lot[0], placeholder='select...'),
     ], style=style_ddn),
     html.Div([
-        html.H1('wf_base', style=style_txt_b14),
+        html.H1('wf_base', style=style_txt_blue14),
         dcc.Dropdown(id='tab1_box1_ddn6', options=list_info_wf, value=list_info_wf[0], placeholder='select...'),
     ], style=style_ddn),
 ])
@@ -134,27 +137,27 @@ def action(btn, dnn1, dnn2, dnn3, dnn4, dnn5, dnn6):
 
 tab2_box1_dnns = html.Div([
     html.Div([
-        html.H1('line', style=style_txt_b14),
+        html.H1('line', style=style_txt_blue14),
         dcc.Dropdown(id='tab2_box1_ddn1', options=list_info_line, value=list_info_line[0], placeholder='select...'),
     ], style=style_ddn),
     html.Div([
-        html.H1('Proc', style=style_txt_b14),
+        html.H1('Proc', style=style_txt_blue14),
         dcc.Dropdown(id='tab2_box1_ddn2', options=list_info_proc, value=list_info_proc[0], placeholder='select...'),
     ], style=style_ddn),
     html.Div([
-        html.H1('lot_target', style=style_txt_b14),
+        html.H1('lot_target', style=style_txt_blue14),
         dcc.Dropdown(id='tab2_box1_ddn3', options=list_info_lot, value=list_info_lot[0], placeholder='select...'),
     ], style=style_ddn),
     html.Div([
-        html.H1('wf_target', style=style_txt_b14),
+        html.H1('wf_target', style=style_txt_blue14),
         dcc.Dropdown(id='tab2_box1_ddn4', options=list_info_wf, value=list_info_wf[0], placeholder='select...'),
     ], style=style_ddn),
     html.Div([
-        html.H1('lot_base', style=style_txt_b14),
+        html.H1('lot_base', style=style_txt_blue14),
         dcc.Dropdown(id='tab2_box1_ddn5', options=list_info_lot, value=list_info_lot[0], placeholder='select...'),
     ], style=style_ddn),
     html.Div([
-        html.H1('wf_base', style=style_txt_b14),
+        html.H1('wf_base', style=style_txt_blue14),
         dcc.Dropdown(id='tab2_box1_ddn6', options=list_info_wf, value=list_info_wf[0], placeholder='select...'),
     ], style=style_ddn),
 ])
@@ -179,19 +182,21 @@ tab2_box1_table = html.Div([
     )
 ])
 
-tab2_box2_graph = html.Div([
-    html.Button('draw_graph', id='tab2_box2_btn', n_clicks=0, style=style_btn),
-    dcc.Graph(id='tab2_box2_graph'),
+tab2_box2 = html.Div([
+    html.Div([
+        html.H1('stepseq', style=style_txt_blue14),
+        dcc.Dropdown(id='tab2_box2_ddn', options=list_col_step, value=list_col_step[0], placeholder='select...'),
+    ], style=style_ddn),
+    dcc.Graph(id='tab2_box2_graph1'),
+    dcc.Graph(id='tab2_box2_graph2'),
 ])
 
 tab2 = html.Div([
     html.H1('trace : top vs bottom wf'),
     tab2_box1_dnns,
-    html.Br(),
     tab2_box1_table,
     html.Br(),
-    tab2_box2_graph,
-
+    tab2_box2,
 ])
 
 
@@ -206,22 +211,31 @@ def action(btn, dnn1, dnn2, dnn3, dnn4, dnn5, dnn6):
 
 
 @app.callback(
-    Output('tab2_box2_graph', 'figure'),
-    Input('tab2_box2_btn', 'n_clicks'),
+    Output('tab2_box2_graph1', 'figure'),
+    Output('tab2_box2_graph2', 'figure'),
+    Input('tab2_box2_ddn', 'value'),
 )
-def action(btn):
-
-    list_x = [1,2,3,4,5,6,7,8]
-    list_y = [100,100,100,100,200,200,200,200]
-    list_size = [10,20,30,30,20,20,30,30]
-    list_color = [1,1,1,1,0,0,0.5,0.5]
-    fig = px.scatter(
-        x=list_x, y=list_y, size=list_size, color=list_color,
+def action(step):
+    fig1 = px.scatter(
+        df_study,
+        x=step, y='et', # size=list_size, color=list_color,
         hover_name=None, log_x=False, size_max=None,
         width=800, height=400
     )
-    fig.update_layout(title_text='ppid in df_study', title_font_size=30)
-    return fig
+
+    df_study_tmp = df_study[[step, 'chip_x_pos', 'chip_y_pos', 'et']]
+    df_study_tmp = df_study_tmp.groupby(['chip_x_pos', 'chip_y_pos']).agg({step: 'count', 'et': 'median'}).reset_index()
+    df_study_tmp.to_csv('smart_collector/output_data/df_study_tmp.csv')
+
+    fig2 = px.scatter(
+        df_study_tmp,
+        x='chip_x_pos', y='chip_y_pos', size=step, color='et',
+        hover_name=None, log_x=False, size_max=None,
+        labels={step:'1'},
+        width=800, height=400
+    )
+
+    return fig1, fig2
 
 
 ########################################################################################################################
@@ -319,11 +333,11 @@ def action_update_graph(btn):
 tab5_box1 = html.Div([
     html.H1('iris : scatter plot for the iris data'),
     html.Div([
-        html.H1('X-variable', style=style_txt_b14),
+        html.H1('X-variable', style=style_txt_blue14),
         dcc.Dropdown(id='tab5_box1_x', options=list_col_iris, value=list_col_iris[0], placeholder='Select X'),
     ], style=style_ddn),
     html.Div([
-        html.H1('Y-variable', style=style_txt_b14),
+        html.H1('Y-variable', style=style_txt_blue14),
         dcc.Dropdown(id='tab5_box1_y', options=list_col_iris, value=list_col_iris[1], placeholder='Select Y'),
     ], style=style_ddn)
 ])
