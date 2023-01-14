@@ -12,10 +12,11 @@ box_df_material = dict()
 for mat in list_file_mat:
     box_df_material[mat] = pd.read_csv('smart_collector/output_data/df_{}.csv'.format(mat))
 df_copper = pd.read_csv('smart_collector/output_data/df_copper.csv')
+df_study = pd.read_csv('smart_collector/output_data/df_study.csv')
 
 list_info_line = ['LLLA', 'LLLB', 'LLLC']
 list_info_proc = ['PPPA', 'PPPB', 'PPPC']
-list_info_lot = ['BZZ001', 'BZZ002', 'BZZ003']
+list_info_lot = sorted(set([str(lot_wf).split('_')[0] for lot_wf in df_study['lot_wf']]))
 list_info_wf = ['0' + str(wf) if wf < 10 else wf for wf in range(1, 25)]
 
 ########################################################################################################################
@@ -69,7 +70,7 @@ tab1_box1_dnns = html.Div([
     ], style=style_ddn),
     html.Div([
         html.H1('Proc', style=style_txt_b14),
-        dcc.Dropdown(id='tab1_box1_ddn2', options=list_info_wf, value=list_info_wf[0], placeholder='select...'),
+        dcc.Dropdown(id='tab1_box1_ddn2', options=list_info_proc, value=list_info_proc[0], placeholder='select...'),
     ], style=style_ddn),
     html.Div([
         html.H1('lot_target', style=style_txt_b14),
@@ -138,7 +139,7 @@ tab2_box1_dnns = html.Div([
     ], style=style_ddn),
     html.Div([
         html.H1('Proc', style=style_txt_b14),
-        dcc.Dropdown(id='tab2_box1_ddn2', options=list_info_wf, value=list_info_wf[0], placeholder='select...'),
+        dcc.Dropdown(id='tab2_box1_ddn2', options=list_info_proc, value=list_info_proc[0], placeholder='select...'),
     ], style=style_ddn),
     html.Div([
         html.H1('lot_target', style=style_txt_b14),
@@ -162,8 +163,8 @@ tab2_box1_table = html.Div([
     html.Button('show', id='tab1_box1_btn1', n_clicks=0, style=style_btn),
     dash_table.DataTable(
         id='tab1_box1_table',
-        data=df_copper.to_dict('records'),
-        columns=[{'name': idx, 'id': idx, 'deletable': True} for idx in df_copper.columns],
+        data=df_study.to_dict('records'),
+        columns=[{'name': idx, 'id': idx, 'deletable': True} for idx in df_study.columns],
         filter_action='native',  # 'native', 'custom'
         # filter_query='',
         sort_action='native',  # 'native', 'custom'
@@ -227,7 +228,7 @@ tab3_box2 = html.Div([
 ])
 
 tab3 = html.Div([
-    html.H1('trace : top vs bottom wf'),
+    html.H1('trace : por/ecn/ein, etc...'),
     tab3_box1,
     html.Br(),
     tab3_box2,
