@@ -37,7 +37,7 @@ app.layout = html.Div([
         dcc.Tab(label='analysis', value='tab2', style=style_tab, selected_style=style_tab),
         dcc.Tab(label='ex_price1', value='tab3', style=style_tab, selected_style=style_tab),
         dcc.Tab(label='ex_price2', value='tab4', style=style_tab, selected_style=style_tab),
-        dcc.Tab(label='ex_iris', value='tab5', style=style_tab, selected_style=style_tab),
+        dcc.Tab(label='ex_iris_from_icloud', value='tab5', style=style_tab, selected_style=style_tab),
     ]),
     html.Div(id='tabs_content')
 ])
@@ -341,4 +341,4 @@ def action_update_graph(xvar, yvar):
 ########################################################################################################################
 
 if __name__ == '__main__':
-    app.run_server(debug=False, host='0.0.0.0', port=8888)
+    app.run_server(debug=False, host='0.0.0.0', port=8080)
