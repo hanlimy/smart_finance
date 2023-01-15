@@ -2,7 +2,6 @@ import pandas as pd
 
 from dash import Dash, dash_table, html, dcc, Input, Output, State
 import plotly.express as px
-import plotly.graph_objects as go
 
 df_iris = px.data.iris()
 list_col_iris = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
@@ -13,7 +12,8 @@ for mat in list_file_mat:
     box_df_material[mat] = pd.read_csv('smart_collector/output_data/df_{}.csv'.format(mat))
 df_copper = pd.read_csv('smart_collector/output_data/df_copper.csv')
 
-df_study = pd.read_csv('smart_collector/output_data/df_study.csv')
+df_study = pd.read_csv('loc_flash/output_data/df_study.csv')
+df_study_agg = pd.read_csv('loc_flash/output_data/df_study_agg2.csv')
 list_col_step = [step for step in df_study.columns if step not in ['lot_wf', 'et', 'chip_x_pos', 'chip_y_pos']]
 
 list_info_line = ['LLLA', 'LLLB', 'LLLC']
@@ -34,14 +34,15 @@ style_txt_blue14 = {'color': 'blue', 'fontSize': 14}
 style_table = {'height': '400px', 'overflowX': 'scroll'}
 style_cell = {'height': '90', 'minWidth': '140px', 'width': '140px', 'maxWidth': '140px', 'whiteSpace': 'normal'},
 
+list_tab_name = ['prediction', 'analysis', 'ex_price1', 'ex_price2', 'ex_iris']
+list_tab = [
+    dcc.Tab(
+        label=list_tab_name[idx], value='tab'+str(idx+1), style=style_tab, selected_style=style_tab
+    ) for idx in range(0, len(list_tab_name))
+]
+
 app.layout = html.Div([
-    dcc.Tabs(id="tabs", value='tab2', children=[
-        dcc.Tab(label='prediction', value='tab1', style=style_tab, selected_style=style_tab),
-        dcc.Tab(label='analysis', value='tab2', style=style_tab, selected_style=style_tab),
-        dcc.Tab(label='ex_price1', value='tab3', style=style_tab, selected_style=style_tab),
-        dcc.Tab(label='ex_price2', value='tab4', style=style_tab, selected_style=style_tab),
-        dcc.Tab(label='ex_iris', value='tab5', style=style_tab, selected_style=style_tab),
-    ]),
+    dcc.Tabs(id="tabs", value='tab2', children=list_tab),
     html.Div(id='tabs_content')
 ])
 
@@ -124,16 +125,35 @@ tab1 = html.Div([
 
 @app.callback(
     Output('tab1_box1_table', 'children'),
-    Input('tab1_box1_btn1', 'value'),
+    Input('tab1_box1_btn1', 'n_clicks'),
     [State('tab1_box1_ddn{}'.format(num), 'value') for num in range(1, 7)]
 )
 def action(btn, dnn1, dnn2, dnn3, dnn4, dnn5, dnn6):
-    print('-' * 100)
 
-    return tab1_box1_table
+    return None
 
 
 ########################################################################################################################
+
+tab2_box1_table1 = html.Div([
+    html.Button('show', id='tab2_box1_btn1', n_clicks=0, style=style_btn),
+    dash_table.DataTable(
+        id='tab1_box1_table1',
+        data=df_study.to_dict('records'),
+        columns=[{'name': idx, 'id': idx, 'deletable': True} for idx in df_study.columns],
+        filter_action='native',  # 'native', 'custom'
+        # filter_query='',
+        sort_action='native',  # 'native', 'custom'
+        sort_mode='multi',
+        # sort_by=['Date']
+        row_deletable=False,
+        # page_current=0,
+        # page_size=1000,
+        page_action='native',   # 'native', 'custom'
+        style_table=style_table,
+        style_cell=style_cell,
+    )
+])
 
 tab2_box1_dnns = html.Div([
     html.Div([
@@ -162,12 +182,14 @@ tab2_box1_dnns = html.Div([
     ], style=style_ddn),
 ])
 
-tab2_box1_table = html.Div([
-    html.Button('show', id='tab1_box1_btn1', n_clicks=0, style=style_btn),
+tab2_box1_table2 = html.Div([
+    html.Button('show', id='tab2_box1_btn2', n_clicks=0, style=style_btn),
     dash_table.DataTable(
-        id='tab1_box1_table',
-        data=df_study.to_dict('records'),
+        id='tab2_box1_table2',
+        data=None,
         columns=[{'name': idx, 'id': idx, 'deletable': True} for idx in df_study.columns],
+        editable=True,
+
         filter_action='native',  # 'native', 'custom'
         # filter_query='',
         sort_action='native',  # 'native', 'custom'
@@ -193,21 +215,48 @@ tab2_box2 = html.Div([
 
 tab2 = html.Div([
     html.H1('trace : top vs bottom wf'),
+    tab2_box1_table1,
     tab2_box1_dnns,
-    tab2_box1_table,
+    tab2_box1_table2,
     html.Br(),
     tab2_box2,
 ])
 
 
 @app.callback(
-    Output('tab2_box1_table', 'children'),
-    Input('tab2_box1_btn1', 'value'),
+    Output('tab2_box1_table2', 'data'),
+    Input('tab2_box1_btn2', 'n_clicks'),
     [State('tab2_box1_ddn{}'.format(num), 'value') for num in range(1, 7)]
 )
 def action(btn, dnn1, dnn2, dnn3, dnn4, dnn5, dnn6):
 
-    return tab2_box1_table
+    if btn == 0:
+        df_result = pd.DataFrame(columns=df_study.columns).to_dict('records')
+    else:
+        df_tmp = df_study.set_index('lot_wf')
+        lot_wf_end = str(dnn3) + '_' + str(dnn4)
+        lot_wf_start = str(dnn5) + '_' + str(dnn6)
+        df_end = df_tmp.loc[[lot_wf_end], :].reset_index()
+        df_start = df_tmp.loc[[lot_wf_start], :].reset_index()
+
+        df_diff = df_start.eq(df_end).drop(columns=['lot_wf', 'chip_x_pos', 'chip_y_pos', 'et']).T.reset_index()
+        df_diff = df_diff[df_diff[0] == False]
+        list_idx_diff = sorted(df_diff.index)
+
+        df_trace = pd.DataFrame(columns=df_tmp.columns).reset_index()
+        for _ in range(0, len(list_idx_diff)+1):
+            df_trace = pd.concat([df_trace, df_start], axis=0)
+
+        idx_row = 1
+        idx_start = 0
+        for idx_end in list_idx_diff:
+            df_trace.iloc[idx_row, idx_start:idx_end] = df_end.iloc[0, idx_start:idx_end]
+            idx_start = idx_end
+            idx_row += 1
+
+        df_result = df_trace.reset_index().to_dict('records')
+
+    return df_result
 
 
 @app.callback(
@@ -218,20 +267,23 @@ def action(btn, dnn1, dnn2, dnn3, dnn4, dnn5, dnn6):
 def action(step):
     fig1 = px.scatter(
         df_study,
-        x=step, y='et', # size=list_size, color=list_color,
+        x=step, y='et',
         hover_name=None, log_x=False, size_max=None,
         width=800, height=400
     )
 
-    df_study_tmp = df_study[[step, 'chip_x_pos', 'chip_y_pos', 'et']]
-    df_study_tmp = df_study_tmp.groupby(['chip_x_pos', 'chip_y_pos']).agg({step: 'count', 'et': 'median'}).reset_index()
-    df_study_tmp.to_csv('smart_collector/output_data/df_study_tmp.csv')
+    df_study_tmp = df_study[['chip_x_pos', 'chip_y_pos', step, 'et']]
+    df_study_tmp = df_study_tmp.groupby(['chip_x_pos', 'chip_y_pos', step]).agg({'et': ['median', 'count']})
+    df_study_tmp.to_csv('loc_flash/output_data/df_study_agg1.csv')
+    df_study_tmp.columns = ['et_med', 'et_cnt']
+    df_study_tmp = df_study_tmp.reset_index()
+    df_study_tmp.to_csv('loc_flash/output_data/df_study_agg2.csv')
 
     fig2 = px.scatter(
         df_study_tmp,
-        x='chip_x_pos', y='chip_y_pos', size=step, color='et',
+        x='chip_x_pos', y='chip_y_pos', size='et_cnt', color='et_med',
         hover_name=None, log_x=False, size_max=None,
-        labels={step:'1'},
+        labels={step: 'cnt_sample'},
         width=800, height=400
     )
 
@@ -263,7 +315,7 @@ tab3 = html.Div([
     Output('tab3_box1_graph', 'figure'),
     Input('tab3_box1_ddn_material', 'value'),
 )
-def action_update_graph(material):
+def action(material):
     val_x = 'Date'
     val_y = list(box_df_material[material].columns)
     fig = px.line(box_df_material[material], x=val_x, y=val_y, width=1000, height=700)
@@ -275,7 +327,7 @@ def action_update_graph(material):
     Output('tab3_box2_graph', 'figure'),
     Input('tab3_box2_btn_show', 'n_clicks'),
 )
-def action_update_graph(btn):
+def action(btn):
     val_x = 'Date'
     val_y = list(df_copper.columns)
     fig = px.line(df_copper, x=val_x, y=val_y, width=1000, height=700)
@@ -307,7 +359,7 @@ tab4 = html.Div([
     Output('tab4_box1_graph', 'figure'),
     Input('tab4_box1_ddn_material', 'value'),
 )
-def action_update_graph(material):
+def action(material):
     val_x = 'Date'
     df_tmp = box_df_material[material]
     val_y = list(df_tmp.columns)
@@ -320,7 +372,7 @@ def action_update_graph(material):
     Output('tab4_box2_graph', 'figure'),
     Input('tab4_box2_btn_show', 'n_clicks'),
 )
-def action_update_graph(btn):
+def action(btn):
     val_x = 'Date'
     val_y = list(df_copper.columns)
     fig = px.line(df_copper, x=val_x, y=val_y, width=1000, height=700)
@@ -356,7 +408,7 @@ tab5 = html.Div([
     Input('tab5_box1_x', 'value'),
     Input('tab5_box1_y', 'value')
 )
-def action_update_graph(xvar, yvar):
+def action(xvar, yvar):
     fig = px.scatter(df_iris, x=xvar, y=yvar, color='species', width=1000, height=700)
     fig.update_layout(title_text='Scatter plot of ' + xvar + ' vs ' + yvar, title_font_size=30)
     return fig
@@ -365,4 +417,4 @@ def action_update_graph(xvar, yvar):
 ########################################################################################################################
 
 if __name__ == '__main__':
-    app.run_server(debug=False, host='0.0.0.0', port=8080)
+    app.run_server(debug=False, host='0.0.0.0', port=8081)
