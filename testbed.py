@@ -1,10 +1,12 @@
-import tensorflow as tf
+# import tensorflow as tf
 
 # gpu running is ok spec
 # python 3.8.15
 # tensorflow-deps 2.10.0
 # tensorflow-macos 2.9.0
 # tensorflowmetal 0.5.0
+
+# test in ipad 1/17
 
 
 def test_gpu_multi():
@@ -58,5 +60,3 @@ def test_code():
     # 파이썬 내장 원주율값(math.pi)와 비교
     print("내장 원주율: ", math.pi, "차이: ", math.pi - new_pi)
 
-
-test_code()
