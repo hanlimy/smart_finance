@@ -6,7 +6,7 @@ from prediction import simple_prediction
 
 
 if __name__ == '__main__':
-    print('#' * 100 + '\n[smart_stock] {}'.format(info_lv1['version']))
+    print('#' * 100 + '\n[stock] {}'.format(info_lv1['version']))
 
     # 1. get data
     print('#' * 100 + '\n[get_data]')

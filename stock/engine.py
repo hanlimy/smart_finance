@@ -77,7 +77,7 @@ def make_model(info_lv2, box_study_scaled):
         smart_stock[company]['model'] = model
 
     joblib.dump(smart_stock, '{}/model_smart_stock.pkl'.format(info_lv2['path_model']))
-    # joblib.load('smart_stock.pkl')
+    # joblib.load('stock.pkl')
 
     return smart_stock
 

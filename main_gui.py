@@ -1,4 +1,5 @@
 import pandas as pd
+import time
 
 from dash import Dash, dash_table, html, dcc, Input, Output, State, ctx
 import plotly.express as px
@@ -9,8 +10,8 @@ list_col_iris = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
 list_file_mat = ['gold', 'silver', 'oil']
 box_df_material = dict()
 for mat in list_file_mat:
-    box_df_material[mat] = pd.read_csv('smart_collector/output_data/df_{}.csv'.format(mat))
-df_copper = pd.read_csv('smart_collector/output_data/df_copper.csv')
+    box_df_material[mat] = pd.read_csv('collector/output_data/df_{}.csv'.format(mat))
+df_copper = pd.read_csv('collector/output_data/df_copper.csv')
 
 df_study = pd.read_csv('loc_flash/output_data/df_study.csv')
 df_study_agg = pd.read_csv('loc_flash/output_data/df_study_agg2.csv')
@@ -30,8 +31,6 @@ app.config.suppress_callback_exceptions = True
 style_tab = {'height': 20, 'width': 100}
 style_btn = {'height': 20, 'width': 100, 'display': 'inline-block'}
 style_txt_blue14 = {'color': 'blue', 'fontSize': 14}
-style_table = {'height': '400px', 'overflowX': 'scroll'}
-style_cell = {'height': '90', 'minWidth': '140px', 'width': '140px', 'maxWidth': '140px', 'whiteSpace': 'normal'},
 
 list_tab_name = ['prediction', 'analysis']
 
@@ -39,8 +38,9 @@ app.layout = html.Div([
     dcc.Tabs(id="tabs", value='tab1', children=[
         dcc.Tab(
             label=list_tab_name[idx], value='tab'+str(idx+1),
-            style={'width': '30%', 'border': '1px solid'},
-            selected_style={'width': '30%', 'border': '1px solid'},
+            style={'width': '20%', 'border': '1px solid',  'font_family': 'cursive',},
+            selected_style={'width': '20%', 'border': '1px solid', 'font_family': 'cursive',},
+
         ) for idx in range(0, len(list_tab_name))
     ], style={'margin-left': '10px'}),
 
@@ -52,8 +52,8 @@ app.layout = html.Div([
     Output('tabs_content', 'children'),
     [Input('tabs', 'value')]
 )
-def render_content(tab):
-    print('[RUN] render_content : ', tab)
+def make_tabs_content(tab):
+    print('[INIT] make_tabs_content : ', tab)
     if tab == 'tab1':
         return tab1
     # elif tab == 'tab2':
@@ -62,7 +62,7 @@ def render_content(tab):
 
 ########################################################################################################################
 
-tab1_box1_dnns = html.Div([
+tab1_box1_btns = html.Div([
     html.Div([
         html.H5('line', style={'color': 'red'}),
         dcc.Dropdown(
@@ -77,80 +77,135 @@ tab1_box1_dnns = html.Div([
             placeholder='select...', style={'height': '20px', 'width': '140px'}
         ),
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
+
     html.Div([
         html.Button(
-            'dataload', id='tab1_box1_btn1', n_clicks=0,
+            'dataload', id='tab1_box1_btn1_dataload', n_clicks=0,
             style={'height': '20px', 'width': '140px'}
         ),
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
     html.Div([
         html.Button(
-            'show', id='tab1_box1_btn2', n_clicks=0,
+            'predict', id='tab1_box1_btn2_predict', n_clicks=0,
             style={'height': '20px', 'width': '140px'}
         ),
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
 ], style={'position': 'relative'})
 
-tab1_box1_data = html.Div(id='tab1_box1_data')
+tab1_box1 = html.Div([
+    html.Div([
+        dash_table.DataTable(
+            id='tab1_box1_table1',
+            columns=[{'name': idx, 'id': idx, 'deletable': True} for idx in df_copper.columns],
+            data=None,
+            editable=True,
 
-tab1_box1_table = html.Div([
-    dash_table.DataTable(
-        id='tab1_box1_table',
-        columns=[{'name': idx, 'id': idx, 'deletable': True} for idx in df_copper.columns],
-        data=None,
-        style_table=style_table,
-        style_cell=style_cell,
-        # page_current=0,
-        # page_size=1000,
-        # page_action='custom',
-        filter_action='native',
-        # filter_query='',
-        sort_action='native',
-        sort_mode='multi',
-        # sort_by=['Date']
-    )
+            filter_action='native',
+            sort_action='native',
+            sort_mode='multi',
+            # sort_by=['Date']
+
+            page_size=20,
+            fixed_columns={'headers': True, 'data': 1},
+            # fixed_rows={'headers': True, 'data': 1},
+            style_table={
+                # 'overlflowX': 'scroll',
+                'minWidth': '600px', 'width': '600px', 'maxWidth': '600px',
+            },
+            style_cell={
+                'height': '90',
+                # all three widths are needed
+                'minWidth': '40px', 'width': '60px', 'maxWidth': '100px',
+                # 'whiteSpace': 'normal',
+                # 'textOverflow': 'ellipsis',
+            }
+
+        ),
+    ], style={
+        'display': 'inline-block', 'margin-top': '20px',
+        'verticalAlign': 'top',
+    }),
+
+    html.Div([
+        dash_table.DataTable(
+            id='tab1_box1_table2',
+            columns=[{'name': idx, 'id': idx, 'deletable': True} for idx in df_copper.columns],
+            data=None,
+
+            filter_action='native',
+            sort_action='native',
+            sort_mode='multi',
+            # sort_by=['Date']
+
+            page_size=20,
+            fixed_columns={'headers': True, 'data': 1},
+            # fixed_rows={'headers': True, 'data': 1},
+            style_table={
+                # 'overlflowX': 'scroll',
+                'minWidth': '600px', 'width': '600px', 'maxWidth': '600px',
+            },
+            style_cell={
+                'height': '90',
+                # all three widths are needed
+                'minWidth': '40px', 'width': '60px', 'maxWidth': '100px',
+                # 'whiteSpace': 'normal',
+                # 'textOverflow': 'ellipsis',
+            }
+
+        ),
+    ], style={
+        'display': 'inline-block', 'margin-top': '20px', 'margin-left': '20px',
+        'verticalAlign': 'top',
+    }),
 ])
 
 tab1 = html.Div([
     html.Div([
-        tab1_box1_dnns,
-        html.Br(),
-        tab1_box1_data,
-        tab1_box1_table,
+        tab1_box1_btns,
+        html.Div(id='tab1_box1_data'),
+        tab1_box1,
     ], style={
         'border': '1px solid', 'padding': '10px',
         'margin-left': '10px', 'margin-right': '10px', 'margin-bottom': '10px'
+
     })
 ])
 
 
 @app.callback(
+    Output('tab1_box1_table1', 'data'),
     Output('tab1_box1_data', 'children'),
-    Input('tab1_box1_btn1', 'n_clicks'),
+    Input('tab1_box1_btn1_dataload', 'n_clicks'),
 )
-def action(btn):
-    if btn != 0:
-        print('-' * 100 + 'btn1')
-        print(df_copper.index)
-        print(df_copper)
-        df_tmp = df_copper.to_dict('records')
+def make_tab1_box1_table1(btn):
+    print('[INIT] make_tab1_box1_table1 : ', btn)
+    if ctx.triggered_id == 'tab1_box1_btn1_dataload':
+        print(' > [IF] tab1_box1_btn1_dataload')
+
+        df_copper = pd.read_csv('collector/output_data/df_copper.csv')
+        dict_data = df_copper.to_dict('records')
+        print(dict_data)
+
     else:
-        df_tmp = None
-    return df_tmp
+        dict_data = None
+
+    return dict_data, dict_data
 
 
 @app.callback(
-    Output('tab1_box1_table', 'data'),
-    Input('tab1_box1_btn2', 'n_clicks'),
+    Output('tab1_box1_table2', 'data'),
+    Input('tab1_box1_btn2_predict', 'n_clicks'),
     State('tab1_box1_data', 'children'),
 )
-def action(btn, data):
-    if btn != 0:
-        print('-' * 100 + 'btn2')
-        print(data)
+def make_tab1_box1_table2(btn, dict_data):
+    print('[INIT] make_tab1_box1_table2 : ', btn, type(dict_data))
+    if ctx.triggered_id == 'tab1_box1_btn2_predict':
+        print(' > [IF] tab1_box1_btn2_predict : ', btn, type(dict_data))
+        print(dict_data)
     else:
-        data = None
-    return data
+        dict_data = None
+
+    return dict_data
 
 
 ########################################################################################################################
