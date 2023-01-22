@@ -65,8 +65,8 @@ def make_tabs_content(tab):
     print('-' * 100 + '\n[INIT] make_tabs_content : ', tab)
     if tab == 'tab1':
         return tab1
-    # elif tab == 'tab2':
-    #     return tab2
+    elif tab == 'tab2':
+        return tab2
 
 
 ########################################################################################################################
@@ -216,164 +216,9 @@ def make_tab1_box1_table2(btn, dict_data):
 
 ########################################################################################################################
 
-# tab2_box1_table1 = html.Div([
-#     html.Button('show', id='tab2_box1_btn1', n_clicks=0, style=style_btn),
-#     dash_table.DataTable(
-#         id='tab1_box1_table1',
-#         data=df_study.to_dict('records'),
-#         columns=[{'name': idx, 'id': idx, 'deletable': True} for idx in df_study.columns],
-#         filter_action='native',  # 'native', 'custom'
-#         # filter_query='',
-#         sort_action='native',  # 'native', 'custom'
-#         sort_mode='multi',
-#         # sort_by=['Date']
-#         row_deletable=False,
-#         # page_current=0,
-#         # page_size=1000,
-#         page_action='native',   # 'native', 'custom'
-#         style_table=style_table,
-#         style_cell=style_cell,
-#     )
-# ])
-#
-# tab2_box1_dnns = html.Div([
-#     html.Div([
-#         html.H1('line', style=style_txt_blue14),
-#         dcc.Dropdown(id='tab2_box1_ddn1', options=list_info_line, value=list_info_line[0], placeholder='select...'),
-#     ], style=style_ddn),
-#     html.Div([
-#         html.H1('Proc', style=style_txt_blue14),
-#         dcc.Dropdown(id='tab2_box1_ddn2', options=list_info_proc, value=list_info_proc[0], placeholder='select...'),
-#     ], style=style_ddn),
-#     html.Div([
-#         html.H1('lot_target', style=style_txt_blue14),
-#         dcc.Dropdown(id='tab2_box1_ddn3', options=list_info_lot, value=list_info_lot[0], placeholder='select...'),
-#     ], style=style_ddn),
-#     html.Div([
-#         html.H1('wf_target', style=style_txt_blue14),
-#         dcc.Dropdown(id='tab2_box1_ddn4', options=list_info_wf, value=list_info_wf[0], placeholder='select...'),
-#     ], style=style_ddn),
-#     html.Div([
-#         html.H1('lot_base', style=style_txt_blue14),
-#         dcc.Dropdown(id='tab2_box1_ddn5', options=list_info_lot, value=list_info_lot[0], placeholder='select...'),
-#     ], style=style_ddn),
-#     html.Div([
-#         html.H1('wf_base', style=style_txt_blue14),
-#         dcc.Dropdown(id='tab2_box1_ddn6', options=list_info_wf, value=list_info_wf[0], placeholder='select...'),
-#     ], style=style_ddn),
-# ])
-
-# tab2_box1_table2 = html.Div([
-#     html.Button('show', id='tab2_box1_btn2', n_clicks=0, style=style_btn),
-#     dash_table.DataTable(
-#         id='tab2_box1_table2',
-#         data=None,
-#         columns=[{'name': idx, 'id': idx, 'deletable': True} for idx in df_study.columns],
-#         editable=True,
-#
-#         filter_action='native',  # 'native', 'custom'
-#         # filter_query='',
-#         sort_action='native',  # 'native', 'custom'
-#         sort_mode='multi',
-#         # sort_by=['Date']
-#         row_deletable=False,
-#         # page_current=0,
-#         # page_size=1000,
-#         page_action='native',   # 'native', 'custom'
-#         style_table=style_table,
-#         style_cell=style_cell,
-#     )
-# ])
-#
-# tab2_box2 = html.Div([
-#     html.Div([
-#         html.H1('stepseq', style=style_txt_blue14),
-#         dcc.Dropdown(id='tab2_box2_ddn', options=list_col_step, value=list_col_step[0], placeholder='select...'),
-#     ], style=style_ddn),
-#     html.Button('show', id='tab2_box2_btn1', n_clicks=0, style=style_btn),
-#     dcc.Graph(id='tab2_box2_graph1'),
-#     dcc.Graph(id='tab2_box2_graph2'),
-# ])
-#
-# tab2 = html.Div([
-#     html.H1('trace : top vs bottom wf'),
-#     tab2_box1_table1,
-#     tab2_box1_dnns,
-#     tab2_box1_table2,
-#     html.Br(),
-#     tab2_box2,
-# ])
-#
-#
-# @app.callback(
-#     Output('tab2_box1_table2', 'data'),
-#     Input('tab2_box1_btn2', 'n_clicks'),
-#     [State('tab2_box1_ddn{}'.format(num), 'value') for num in range(1, 7)]
-# )
-# def action(btn, dnn1, dnn2, dnn3, dnn4, dnn5, dnn6):
-#     print('[RUN] action:', btn, dnn1, dnn2, dnn3, dnn4, dnn5, dnn6)
-#
-#     if btn == 0:
-#         df_result = pd.DataFrame(columns=df_study.columns).to_dict('records')
-#     else:
-#         df_tmp = df_study.set_index('lot_wf')
-#         lot_wf_end = str(dnn3) + '_' + str(dnn4)
-#         lot_wf_start = str(dnn5) + '_' + str(dnn6)
-#         df_end = df_tmp.loc[[lot_wf_end], :].reset_index()
-#         df_start = df_tmp.loc[[lot_wf_start], :].reset_index()
-#
-#         df_diff = df_start.eq(df_end).drop(columns=['lot_wf', 'chip_x_pos', 'chip_y_pos', 'et']).T.reset_index()
-#         df_diff = df_diff[df_diff[0] == False]
-#         list_idx_diff = sorted(df_diff.index)
-#
-#         df_trace = pd.DataFrame(columns=df_tmp.columns).reset_index()
-#         for _ in range(0, len(list_idx_diff)+1):
-#             df_trace = pd.concat([df_trace, df_start], axis=0)
-#
-#         idx_row = 1
-#         idx_start = 0
-#         for idx_end in list_idx_diff:
-#             df_trace.iloc[idx_row, idx_start:idx_end] = df_end.iloc[0, idx_start:idx_end]
-#             idx_start = idx_end
-#             idx_row += 1
-#
-#         df_result = df_trace.reset_index().to_dict('records')
-#
-#     return df_result
-#
-#
-# @app.callback(
-#     Output('tab2_box2_graph1', 'figure'),
-#     Output('tab2_box2_graph2', 'figure'),
-#     Input('tab2_box2_btn1', 'n_clicks'),
-#     State('tab2_box2_ddn', 'value'),
-# )
-# def action(btn, step):
-#     print('[RUN] action:', btn, step)
-#
-#     fig1 = px.scatter(
-#         df_study,
-#         x=step, y='et',
-#         hover_name=None, log_x=False, size_max=None,
-#         width=800, height=400
-#     )
-#
-#     df_study_tmp = df_study[['chip_x_pos', 'chip_y_pos', step, 'et']]
-#     df_study_tmp = df_study_tmp.groupby(['chip_x_pos', 'chip_y_pos', step]).agg({'et': ['median', 'count']})
-#     df_study_tmp.to_csv('loc_flash/output_data/df_study_agg1.csv')
-#     df_study_tmp.columns = ['et_med', 'et_cnt']
-#     df_study_tmp = df_study_tmp.reset_index()
-#     df_study_tmp.to_csv('loc_flash/output_data/df_study_agg2.csv')
-#
-#     fig2 = px.scatter(
-#         df_study_tmp,
-#         x='chip_x_pos', y='chip_y_pos', size='et_cnt', color='et_med',
-#         hover_name=None, log_x=False, size_max=None,
-#         labels={step: 'cnt_sample'},
-#         width=800, height=400
-#     )
-#
-#     return fig1, fig2
+tab2 = html.Div([
+    html.H1('trace : top vs bottom wf'),
+])
 
 
 ########################################################################################################################
