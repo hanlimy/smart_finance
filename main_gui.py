@@ -4,6 +4,11 @@ import time
 from dash import Dash, dash_table, html, dcc, Input, Output, State, ctx
 import plotly.express as px
 
+dcc.Markdown('''
+    # This is a heading
+    This is some **bold** text.
+''', style={'font-family': 'Verdana'})
+
 df_iris = px.data.iris()
 list_col_iris = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
 
@@ -32,17 +37,21 @@ style_tab = {'height': 20, 'width': 100}
 style_btn = {'height': 20, 'width': 100, 'display': 'inline-block'}
 style_txt_blue14 = {'color': 'blue', 'fontSize': 14}
 
-list_tab_name = ['prediction', 'analysis']
-
 app.layout = html.Div([
     dcc.Tabs(id="tabs", value='tab1', children=[
         dcc.Tab(
-            label=list_tab_name[idx], value='tab'+str(idx+1),
-            style={'width': '20%', 'border': '1px solid',  'font_family': 'cursive',},
-            selected_style={'width': '20%', 'border': '1px solid', 'font_family': 'cursive',},
-
-        ) for idx in range(0, len(list_tab_name))
+            label='prediction', value='tab1',
+            style={'width': '20%', 'height': '50px', 'border': '1px solid', 'font_family': 'AppleGothic'},
+            selected_style={'width': '20%', 'height': '50px', 'border': '1px solid', 'font_family': 'AppleGothic'},
+        ),
+        dcc.Tab(
+            label='analysis', value='tab2',
+            style={'width': '20%', 'height': '50px', 'border': '1px solid', 'font_family': 'AppleGothic'},
+            selected_style={'width': '20%', 'height': '50px', 'border': '1px solid', 'font_family': 'AppleGothic'},
+        ),
     ], style={'margin-left': '10px'}),
+
+    html.Div(id='tab1_box1_data'),
 
     html.Div(id='tabs_content')
 ])
@@ -53,7 +62,7 @@ app.layout = html.Div([
     [Input('tabs', 'value')]
 )
 def make_tabs_content(tab):
-    print('[INIT] make_tabs_content : ', tab)
+    print('-' * 100 + '\n[INIT] make_tabs_content : ', tab)
     if tab == 'tab1':
         return tab1
     # elif tab == 'tab2':
@@ -64,14 +73,14 @@ def make_tabs_content(tab):
 
 tab1_box1_btns = html.Div([
     html.Div([
-        html.H5('line', style={'color': 'red'}),
+        html.H5('라인', style={'color': 'red', 'font_family': 'Malgun Gothic'}),
         dcc.Dropdown(
             id='tab1_box1_ddn1', options=list_info_line, value=list_info_line[0],
             placeholder='select...', style={'height': '20px', 'width': '140px'}
         ),
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
     html.Div([
-        html.H5('proc', style={'color': 'A0A0A0'}),
+        html.H5('디스플레이', style={'color': 'A0A0A0', 'font_family': 'Malgun Gothic'}),
         dcc.Dropdown(
             id='tab1_box1_ddn2', options=list_info_line, value=list_info_line[0],
             placeholder='select...', style={'height': '20px', 'width': '140px'}
@@ -110,7 +119,7 @@ tab1_box1 = html.Div([
             # fixed_rows={'headers': True, 'data': 1},
             style_table={
                 # 'overlflowX': 'scroll',
-                'minWidth': '600px', 'width': '600px', 'maxWidth': '600px',
+                'minWidth': '600px', 'width': '700px', 'maxWidth': '700px',
             },
             style_cell={
                 'height': '90',
@@ -142,7 +151,7 @@ tab1_box1 = html.Div([
             # fixed_rows={'headers': True, 'data': 1},
             style_table={
                 # 'overlflowX': 'scroll',
-                'minWidth': '600px', 'width': '600px', 'maxWidth': '600px',
+                'minWidth': '600px', 'width': '700px', 'maxWidth': '700px',
             },
             style_cell={
                 'height': '90',
@@ -162,7 +171,7 @@ tab1_box1 = html.Div([
 tab1 = html.Div([
     html.Div([
         tab1_box1_btns,
-        html.Div(id='tab1_box1_data'),
+        html.Br(),
         tab1_box1,
     ], style={
         'border': '1px solid', 'padding': '10px',
@@ -178,14 +187,11 @@ tab1 = html.Div([
     Input('tab1_box1_btn1_dataload', 'n_clicks'),
 )
 def make_tab1_box1_table1(btn):
-    print('[INIT] make_tab1_box1_table1 : ', btn)
+    print('[INIT] make_tab1_box1_table1 : ', btn, ctx.triggered_id)
     if ctx.triggered_id == 'tab1_box1_btn1_dataload':
-        print(' > [IF] tab1_box1_btn1_dataload')
-
-        df_copper = pd.read_csv('collector/output_data/df_copper.csv')
+        print(' > [IF] tab1_box1_btn1_dataload : ', btn, ctx.triggered_id)
         dict_data = df_copper.to_dict('records')
         print(dict_data)
-
     else:
         dict_data = None
 
@@ -198,10 +204,10 @@ def make_tab1_box1_table1(btn):
     State('tab1_box1_data', 'children'),
 )
 def make_tab1_box1_table2(btn, dict_data):
-    print('[INIT] make_tab1_box1_table2 : ', btn, type(dict_data))
+    print('[INIT] make_tab1_box1_table2 : ', btn, ctx.triggered_id)
     if ctx.triggered_id == 'tab1_box1_btn2_predict':
         print(' > [IF] tab1_box1_btn2_predict : ', btn, type(dict_data))
-        print(dict_data)
+        # print(dict_data)
     else:
         dict_data = None
 
