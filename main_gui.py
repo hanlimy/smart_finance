@@ -51,8 +51,6 @@ app.layout = html.Div([
         ),
     ], style={'margin-left': '10px'}),
 
-    html.Div(id='tab1_box1_data'),
-
     html.Div(id='tabs_content')
 ])
 
@@ -89,19 +87,28 @@ tab1_box1_btns = html.Div([
 
     html.Div([
         html.Button(
-            'dataload', id='tab1_box1_btn1_dataload', n_clicks=0,
+            'dataload', id='tab1_box1_btn1_loaddata', n_clicks=0,
             style={'height': '20px', 'width': '140px'}
         ),
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
     html.Div([
         html.Button(
-            'predict', id='tab1_box1_btn2_predict', n_clicks=0,
+            'savedata', id='tab1_box1_btn2_savedata', n_clicks=0,
+            style={'height': '20px', 'width': '140px'}
+        ),
+    ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
+    html.Div([
+        html.Button(
+            'predict', id='tab1_box1_btn3_predict', n_clicks=0,
             style={'height': '20px', 'width': '140px'}
         ),
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
 ], style={'position': 'relative'})
 
 tab1_box1 = html.Div([
+
+    dcc.Store(id='tab1_box1_data'),
+
     html.Div([
         dash_table.DataTable(
             id='tab1_box1_table1',
@@ -172,6 +179,7 @@ tab1 = html.Div([
     html.Div([
         tab1_box1_btns,
         html.Br(),
+
         tab1_box1,
     ], style={
         'border': '1px solid', 'padding': '10px',
@@ -183,31 +191,47 @@ tab1 = html.Div([
 
 @app.callback(
     Output('tab1_box1_table1', 'data'),
-    Output('tab1_box1_data', 'children'),
-    Input('tab1_box1_btn1_dataload', 'n_clicks'),
+    Input('tab1_box1_btn1_loaddata', 'n_clicks'),
 )
 def make_tab1_box1_table1(btn):
     print('[INIT] make_tab1_box1_table1 : ', btn, ctx.triggered_id)
-    if ctx.triggered_id == 'tab1_box1_btn1_dataload':
-        print(' > [IF] tab1_box1_btn1_dataload : ', btn, ctx.triggered_id)
+    if ctx.triggered_id == 'tab1_box1_btn1_loaddata':
+        print(' > [IF] tab1_box1_btn1_loaddata : ', btn, ctx.triggered_id)
         dict_data = df_copper.to_dict('records')
+    else:
+        dict_data = None
+
+    return dict_data
+
+
+@app.callback(
+    Output('tab1_box1_data', 'data'),
+    Input('tab1_box1_btn2_savedata', 'n_clicks'),
+    State('tab1_box1_table1', 'data'),
+)
+def make_tab1_box1_data(btn, dict_data):
+    print('[INIT] make_tab1_box1_data : ', btn, ctx.triggered_id)
+    if ctx.triggered_id == 'tab1_box1_btn2_savedata':
+        print(' > [IF] tab1_box1_btn2_savedata : ', btn, ctx.triggered_id)
         print(dict_data)
     else:
         dict_data = None
 
-    return dict_data, dict_data
+    return dict_data
 
 
 @app.callback(
     Output('tab1_box1_table2', 'data'),
-    Input('tab1_box1_btn2_predict', 'n_clicks'),
-    State('tab1_box1_data', 'children'),
+    Input('tab1_box1_btn3_predict', 'n_clicks'),
+    State('tab1_box1_data', 'data'),
 )
 def make_tab1_box1_table2(btn, dict_data):
     print('[INIT] make_tab1_box1_table2 : ', btn, ctx.triggered_id)
-    if ctx.triggered_id == 'tab1_box1_btn2_predict':
-        print(' > [IF] tab1_box1_btn2_predict : ', btn, type(dict_data))
-        # print(dict_data)
+    if ctx.triggered_id == 'tab1_box1_btn3_predict':
+        print(' > [IF] tab1_box1_btn3_predict : ', btn, type(dict_data))
+        print(dict_data)
+        df_data = pd.DataFrame(dict_data)
+        print(df_data)
     else:
         dict_data = None
 
