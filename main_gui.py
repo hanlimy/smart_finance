@@ -4,38 +4,18 @@ import time
 from dash import Dash, dash_table, html, dcc, Input, Output, State, ctx
 import plotly.express as px
 
-dcc.Markdown('''
-    # This is a heading
-    This is some **bold** text.
-''', style={'font-family': 'Verdana'})
-
-df_iris = px.data.iris()
-list_col_iris = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
-
-list_file_mat = ['gold', 'silver', 'oil']
-box_df_material = dict()
-for mat in list_file_mat:
-    box_df_material[mat] = pd.read_csv('collector/output_data/df_{}.csv'.format(mat))
 df_copper = pd.read_csv('collector/output_data/df_copper.csv')
-
 df_study = pd.read_csv('loc_flash/output_data/df_study.csv')
 df_study_agg = pd.read_csv('loc_flash/output_data/df_study_agg2.csv')
-list_col_step = [step for step in df_study.columns if step not in ['lot_wf', 'et', 'chip_x_pos', 'chip_y_pos']]
 
 list_info_line = ['LLLA', 'LLLB', 'LLLC']
 list_info_proc = ['PPPA', 'PPPB', 'PPPC']
-list_info_lot = sorted(set([str(lot_wf).split('_')[0] for lot_wf in df_study['lot_wf']]))
-list_info_wf = ['0' + str(wf) if wf < 10 else wf for wf in range(1, 25)]
 
 
 ########################################################################################################################
 
 app = Dash(__name__)
 app.config.suppress_callback_exceptions = True
-
-style_tab = {'height': 20, 'width': 100}
-style_btn = {'height': 20, 'width': 100, 'display': 'inline-block'}
-style_txt_blue14 = {'color': 'blue', 'fontSize': 14}
 
 app.layout = html.Div([
     dcc.Tabs(id="tabs", value='tab1', children=[
@@ -154,7 +134,7 @@ tab1_box1 = html.Div([
             # sort_by=['Date']
 
             page_size=20,
-            fixed_columns={'headers': True, 'data': 1},
+            # fixed_columns={'headers': True, 'data': 1},
             # fixed_rows={'headers': True, 'data': 1},
             style_table={
                 # 'overlflowX': 'scroll',
@@ -195,7 +175,7 @@ tab1 = html.Div([
 )
 def make_tab1_box1_table1(btn):
     print('[INIT] make_tab1_box1_table1 : ', btn, ctx.triggered_id)
-    if ctx.triggered_id == 'tab1_box1_btn1_loaddata':
+    if btn != 0:
         print(' > [IF] tab1_box1_btn1_loaddata : ', btn, ctx.triggered_id)
         dict_data = df_copper.to_dict('records')
     else:
@@ -211,9 +191,8 @@ def make_tab1_box1_table1(btn):
 )
 def make_tab1_box1_data(btn, dict_data):
     print('[INIT] make_tab1_box1_data : ', btn, ctx.triggered_id)
-    if ctx.triggered_id == 'tab1_box1_btn2_savedata':
+    if btn != 0:
         print(' > [IF] tab1_box1_btn2_savedata : ', btn, ctx.triggered_id)
-        print(dict_data)
     else:
         dict_data = None
 
@@ -227,11 +206,9 @@ def make_tab1_box1_data(btn, dict_data):
 )
 def make_tab1_box1_table2(btn, dict_data):
     print('[INIT] make_tab1_box1_table2 : ', btn, ctx.triggered_id)
-    if ctx.triggered_id == 'tab1_box1_btn3_predict':
+    if btn != 0:
         print(' > [IF] tab1_box1_btn3_predict : ', btn, type(dict_data))
-        print(dict_data)
         df_data = pd.DataFrame(dict_data)
-        print(df_data)
     else:
         dict_data = None
 
