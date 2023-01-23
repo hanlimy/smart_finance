@@ -51,39 +51,37 @@ def make_tabs_content(tab):
 
 tab1_box1_btns = html.Div([
     html.Div([
-        html.H5('라인', style={'color': 'red', 'font_family': 'Malgun Gothic'}),
+        html.Div('라인', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
         dcc.Dropdown(
-            id='tab1_box1_ddn1', options=list_info_line, value=list_info_line[0],
-            placeholder='select...', style={'height': '20px', 'width': '140px'}
-        ),
+            id='tab1_box1_ddn1', options=list_info_line, value=list_info_line[0], placeholder='select...',
+            style={'height': '40px', 'width': '140px'})
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
     html.Div([
-        html.H5('디스플레이', style={'color': 'A0A0A0', 'font_family': 'Malgun Gothic'}),
+        html.Div('프로세스', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
         dcc.Dropdown(
-            id='tab1_box1_ddn2', options=list_info_line, value=list_info_line[0],
-            placeholder='select...', style={'height': '20px', 'width': '140px'}
-        ),
+            id='tab1_box1_ddn2', options=list_info_line, value=list_info_line[0], placeholder='select...',
+            style={'height': '40px', 'width': '140px'}),
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
 
     html.Div([
         html.Button(
             'dataload', id='tab1_box1_btn1_loaddata', n_clicks=0,
-            style={'height': '20px', 'width': '140px'}
-        ),
+            style={'height': '40px', 'width': '140px'}
+        )
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
     html.Div([
         html.Button(
             'savedata', id='tab1_box1_btn2_savedata', n_clicks=0,
-            style={'height': '20px', 'width': '140px'}
+            style={'height': '40px', 'width': '140px'}
         ),
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
     html.Div([
         html.Button(
             'predict', id='tab1_box1_btn3_predict', n_clicks=0,
-            style={'height': '20px', 'width': '140px'}
+            style={'height': '40px', 'width': '140px'}
         ),
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
-], style={'position': 'relative'})
+])
 
 tab1_box1 = html.Div([
 
@@ -92,7 +90,7 @@ tab1_box1 = html.Div([
     html.Div([
         dash_table.DataTable(
             id='tab1_box1_table1',
-            columns=[{'name': idx, 'id': idx, 'deletable': True} for idx in df_copper.columns],
+            columns=[{'name': idx, 'id': idx, 'deletable': False} for idx in df_copper.columns],
             data=None,
             editable=True,
 
@@ -101,31 +99,33 @@ tab1_box1 = html.Div([
             sort_mode='multi',
             # sort_by=['Date']
 
-            page_size=20,
+            # page_size=20,
             fixed_columns={'headers': True, 'data': 1},
             # fixed_rows={'headers': True, 'data': 1},
             style_table={
-                # 'overlflowX': 'scroll',
-                'minWidth': '600px', 'width': '700px', 'maxWidth': '700px',
+                'overlflowX': 'scroll',
+                'minHeight': '700px', 'height': '700px', 'maxHeight': '700px',
+                'minWidth': '700px', 'width': '700px', 'maxWidth': '700px',
+
             },
             style_cell={
-                'height': '90',
+                'height': '80',
                 # all three widths are needed
-                'minWidth': '40px', 'width': '60px', 'maxWidth': '100px',
+                'minHeight': '40px', 'width': '60px', 'maxHeight': '100px',
                 # 'whiteSpace': 'normal',
                 # 'textOverflow': 'ellipsis',
+                'font_family': 'Malgun Gothic', 'fontSize': 10,
             }
 
         ),
     ], style={
-        'display': 'inline-block', 'margin-top': '20px',
-        'verticalAlign': 'top',
+        'display': 'inline-block', 'verticalAlign': 'top',
     }),
 
     html.Div([
         dash_table.DataTable(
             id='tab1_box1_table2',
-            columns=[{'name': idx, 'id': idx, 'deletable': True} for idx in df_copper.columns],
+            columns=[{'name': idx, 'id': idx, 'deletable': False} for idx in df_copper.columns],
             data=None,
 
             filter_action='native',
@@ -133,25 +133,26 @@ tab1_box1 = html.Div([
             sort_mode='multi',
             # sort_by=['Date']
 
-            page_size=20,
-            # fixed_columns={'headers': True, 'data': 1},
+            # page_size=20,
+            fixed_columns={'headers': True, 'data': 1},
             # fixed_rows={'headers': True, 'data': 1},
             style_table={
-                # 'overlflowX': 'scroll',
-                'minWidth': '600px', 'width': '700px', 'maxWidth': '700px',
+                'overlflowX': 'scroll',
+                'minHeight': '700px', 'height': '700px', 'maxHeight': '700px',
+                'minWidth': '700px', 'width': '700px', 'maxWidth': '700px',
             },
             style_cell={
-                'height': '90',
+                'height': '80',
                 # all three widths are needed
-                'minWidth': '40px', 'width': '60px', 'maxWidth': '100px',
+                'minHeight': '40px', 'width': '60px', 'maxHeight': '100px',
                 # 'whiteSpace': 'normal',
                 # 'textOverflow': 'ellipsis',
+                'font_family': 'Malgun Gothic', 'fontSize': 10,
             }
 
         ),
     ], style={
-        'display': 'inline-block', 'margin-top': '20px', 'margin-left': '20px',
-        'verticalAlign': 'top',
+        'display': 'inline-block', 'margin-left': '20px', 'verticalAlign': 'top',
     }),
 ])
 
@@ -159,10 +160,10 @@ tab1 = html.Div([
     html.Div([
         tab1_box1_btns,
         html.Br(),
-
         tab1_box1,
     ], style={
         'border': '1px solid', 'padding': '10px',
+        'height': '780px',
         'margin-left': '10px', 'margin-right': '10px', 'margin-bottom': '10px'
 
     })
