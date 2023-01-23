@@ -20,14 +20,14 @@ app.config.suppress_callback_exceptions = True
 app.layout = html.Div([
     dcc.Tabs(id="tabs", value='tab1', children=[
         dcc.Tab(
-            label='prediction', value='tab1',
-            style={'width': '20%', 'height': '50px', 'border': '1px solid', 'font_family': 'AppleGothic'},
-            selected_style={'width': '20%', 'height': '50px', 'border': '1px solid', 'font_family': 'AppleGothic'},
+            label='Prediction', value='tab1',
+            style={'width': '140px', 'height': '30px', 'border': '1px solid', 'font_family': 'AppleGothic'},
+            selected_style={'width': '140px', 'height': '30px', 'border': '1px solid', 'font_family': 'AppleGothic'},
         ),
         dcc.Tab(
-            label='analysis', value='tab2',
-            style={'width': '20%', 'height': '50px', 'border': '1px solid', 'font_family': 'AppleGothic'},
-            selected_style={'width': '20%', 'height': '50px', 'border': '1px solid', 'font_family': 'AppleGothic'},
+            label='Analysis', value='tab2',
+            style={'width': '140px', 'height': '30px', 'border': '1px solid', 'font_family': 'AppleGothic'},
+            selected_style={'width': '140px', 'height': '30px', 'border': '1px solid', 'font_family': 'AppleGothic'},
         ),
     ], style={'margin-left': '10px'}),
 
@@ -51,33 +51,33 @@ def make_tabs_content(tab):
 
 tab1_box1_btns = html.Div([
     html.Div([
-        html.Div('라인', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
+        html.Div('line', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
         dcc.Dropdown(
-            id='tab1_box1_ddn1', options=list_info_line, value=list_info_line[0], placeholder='select...',
+            id='tab1_box1_ddn1', options=list_info_line, value=list_info_line[0],
             style={'height': '40px', 'width': '140px'})
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
     html.Div([
-        html.Div('프로세스', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
+        html.Div('proc', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
         dcc.Dropdown(
-            id='tab1_box1_ddn2', options=list_info_line, value=list_info_line[0], placeholder='select...',
+            id='tab1_box1_ddn2', options=list_info_line, value=list_info_line[0],
             style={'height': '40px', 'width': '140px'}),
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
 
     html.Div([
         html.Button(
-            'dataload', id='tab1_box1_btn1_loaddata', n_clicks=0,
+            'Load Data', id='tab1_box1_btn1_loaddata', n_clicks=0,
             style={'height': '40px', 'width': '140px'}
         )
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
     html.Div([
         html.Button(
-            'savedata', id='tab1_box1_btn2_savedata', n_clicks=0,
+            'Save Data', id='tab1_box1_btn2_savedata', n_clicks=0,
             style={'height': '40px', 'width': '140px'}
         ),
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
     html.Div([
         html.Button(
-            'predict', id='tab1_box1_btn3_predict', n_clicks=0,
+            'Show Predict', id='tab1_box1_btn3_predict', n_clicks=0,
             style={'height': '40px', 'width': '140px'}
         ),
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
@@ -100,8 +100,9 @@ tab1_box1 = html.Div([
             # sort_by=['Date']
 
             # page_size=20,
-            fixed_columns={'headers': True, 'data': 1},
-            # fixed_rows={'headers': True, 'data': 1},
+            # fixed_columns={'headers': True, 'data': 1},
+            fixed_rows={'headers': True, 'data': 0},
+
             style_table={
                 'overlflowX': 'scroll',
                 'minHeight': '700px', 'height': '700px', 'maxHeight': '700px',
@@ -111,7 +112,7 @@ tab1_box1 = html.Div([
             style_cell={
                 'height': '80',
                 # all three widths are needed
-                'minHeight': '40px', 'width': '60px', 'maxHeight': '100px',
+                'minHeight': '30px', 'width': '30px', 'maxHeight': '30px',
                 # 'whiteSpace': 'normal',
                 # 'textOverflow': 'ellipsis',
                 'font_family': 'Malgun Gothic', 'fontSize': 10,
@@ -134,8 +135,8 @@ tab1_box1 = html.Div([
             # sort_by=['Date']
 
             # page_size=20,
-            fixed_columns={'headers': True, 'data': 1},
-            # fixed_rows={'headers': True, 'data': 1},
+            # fixed_columns={'headers': True, 'data': 1},
+            fixed_rows={'headers': True, 'data': 0},
             style_table={
                 'overlflowX': 'scroll',
                 'minHeight': '700px', 'height': '700px', 'maxHeight': '700px',
@@ -144,7 +145,7 @@ tab1_box1 = html.Div([
             style_cell={
                 'height': '80',
                 # all three widths are needed
-                'minHeight': '40px', 'width': '60px', 'maxHeight': '100px',
+                'minHeight': '30px', 'width': '30px', 'maxHeight': '30px',
                 # 'whiteSpace': 'normal',
                 # 'textOverflow': 'ellipsis',
                 'font_family': 'Malgun Gothic', 'fontSize': 10,
@@ -210,6 +211,7 @@ def make_tab1_box1_table2(btn, dict_data):
     if btn != 0:
         print(' > [IF] tab1_box1_btn3_predict : ', btn, type(dict_data))
         df_data = pd.DataFrame(dict_data)
+
     else:
         dict_data = None
 
@@ -219,7 +221,13 @@ def make_tab1_box1_table2(btn, dict_data):
 ########################################################################################################################
 
 tab2 = html.Div([
-    html.H1('trace : top vs bottom wf'),
+    html.Div([
+    ], style={
+        'border': '1px solid', 'padding': '10px',
+        'height': '780px',
+        'margin-left': '10px', 'margin-right': '10px', 'margin-bottom': '10px'
+
+    })
 ])
 
 
