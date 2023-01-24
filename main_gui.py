@@ -17,17 +17,30 @@ list_info_proc = ['PPPA', 'PPPB', 'PPPC']
 app = Dash(__name__)
 app.config.suppress_callback_exceptions = True
 
+style_tab = {
+    'height': '30px', 'width': '140px', 'border': '1px solid', 'border-radius': '4px',
+    # 'font_family': 'AppleGothic',
+    'background': '#323130',
+    'font-size': '14px', 'font-weight': 10, 'color': 'white', 'text-transform': 'uppercase',
+    'align-items': 'center', 'justify-content': 'left',
+    # 'padding': '6px'
+}
+style_tab_selected = {
+    'height': '30px', 'width': '140px', 'border': '1px solid', 'border-radius': '4px',
+    # 'font_family': 'AppleGothic',
+    'background': 'grey',
+    'font-size': '14px', 'font-weight': 600, 'color': 'white', 'text-transform': 'uppercase',
+    'align-items': 'center', 'justify-content': 'left',
+    # 'padding': '6px'
+}
+
 app.layout = html.Div([
     dcc.Tabs(id="tabs", value='tab1', children=[
         dcc.Tab(
-            label='Prediction', value='tab1',
-            style={'width': '140px', 'height': '30px', 'border': '1px solid', 'font_family': 'AppleGothic'},
-            selected_style={'width': '140px', 'height': '30px', 'border': '1px solid', 'font_family': 'AppleGothic'},
+            label='Prediction', value='tab1', style=style_tab, selected_style=style_tab_selected,
         ),
         dcc.Tab(
-            label='Analysis', value='tab2',
-            style={'width': '140px', 'height': '30px', 'border': '1px solid', 'font_family': 'AppleGothic'},
-            selected_style={'width': '140px', 'height': '30px', 'border': '1px solid', 'font_family': 'AppleGothic'},
+            label='Analysis', value='tab2', style=style_tab, selected_style=style_tab_selected,
         ),
     ], style={'margin-left': '10px'}),
 
@@ -66,21 +79,30 @@ tab1_box1_btns = html.Div([
     html.Div([
         html.Button(
             'Load Data', id='tab1_box1_btn1_loaddata', n_clicks=0,
-            style={'height': '40px', 'width': '140px'}
+            style={'height': '40px', 'width': '100px'}
         )
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
     html.Div([
         html.Button(
             'Save Data', id='tab1_box1_btn2_savedata', n_clicks=0,
-            style={'height': '40px', 'width': '140px'}
+            style={'height': '40px', 'width': '100px'}
         ),
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
     html.Div([
         html.Button(
             'Show Predict', id='tab1_box1_btn3_predict', n_clicks=0,
-            style={'height': '40px', 'width': '140px'}
+            style={'height': '40px', 'width': '100px'}
         ),
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
+
+    html.Div([
+        html.Div('Accuracy :', id='tab1_box1_text_accuracy',
+                 style={'fontSize': 20, 'padding': '10px', 'display': 'inline-block'}),
+        html.Div([], id='tab1_box1_number_accuracy',
+                 style={'fontSize': 20, 'padding': '10px', 'display': 'inline-block'})
+    ], style={'display': 'inline-block', 'verticalAlign': 'bottom',
+              'height': '40px', 'width': '200px', 'margin-left': '130px',
+    }),
 ])
 
 tab1_box1 = html.Div([
@@ -165,8 +187,8 @@ tab1 = html.Div([
     ], style={
         'border': '1px solid', 'padding': '10px',
         'height': '780px',
-        'margin-left': '10px', 'margin-right': '10px', 'margin-bottom': '10px'
-
+        'margin-left': '10px', 'margin-right': '10px', 'margin-bottom': '10px',
+        'border-radius': '4px',
     })
 ])
 
@@ -203,6 +225,7 @@ def make_tab1_box1_data(btn, dict_data):
 
 @app.callback(
     Output('tab1_box1_table2', 'data'),
+    Output('tab1_box1_number_accuracy', 'children'),
     Input('tab1_box1_btn3_predict', 'n_clicks'),
     State('tab1_box1_data', 'data'),
 )
@@ -211,11 +234,12 @@ def make_tab1_box1_table2(btn, dict_data):
     if btn != 0:
         print(' > [IF] tab1_box1_btn3_predict : ', btn, type(dict_data))
         df_data = pd.DataFrame(dict_data)
-
+        number_accuracy = '99%'
     else:
         dict_data = None
+        number_accuracy = None
 
-    return dict_data
+    return dict_data, number_accuracy
 
 
 ########################################################################################################################
@@ -225,8 +249,8 @@ tab2 = html.Div([
     ], style={
         'border': '1px solid', 'padding': '10px',
         'height': '780px',
-        'margin-left': '10px', 'margin-right': '10px', 'margin-bottom': '10px'
-
+        'margin-left': '10px', 'margin-right': '10px', 'margin-bottom': '10px',
+        'border-radius': '4px',
     })
 ])
 
