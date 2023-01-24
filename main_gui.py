@@ -69,43 +69,43 @@ def make_tabs_content(tab):
 
 ########################################################################################################################
 
-tab1_box1_btns = html.Div([
+tab1_btns = html.Div([
     html.Div([
         html.Div('Material', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
         dcc.Dropdown(
-            id='tab1_box1_ddn1_mat', options=list_info_material, value=list_info_material[0],
+            id='tab1_btns_ddn1_mat', options=list_info_material, value=list_info_material[0],
             style={'height': '40px', 'width': '140px'})
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
     html.Div([
         html.Div('proc', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
         dcc.Dropdown(
-            id='tab1_box1_ddn2', options=list_info_material, value=list_info_material[0],
+            id='tab1_btns_ddn2', options=list_info_material, value=list_info_material[0],
             style={'height': '40px', 'width': '140px'}),
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
 
     html.Div([
         html.Button(
-            'Load Data', id='tab1_box1_btn1_loaddata', n_clicks=0,
+            'Load Data', id='tab1_btns_btn1_loaddata', n_clicks=0,
             style={'height': '40px', 'width': '100px'}
         )
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
     html.Div([
         html.Button(
-            'Save Data', id='tab1_box1_btn2_savedata', n_clicks=0,
+            'Save Data', id='tab1_btns_btn2_savedata', n_clicks=0,
             style={'height': '40px', 'width': '100px'}
         ),
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
     html.Div([
         html.Button(
-            'Show Predict', id='tab1_box1_btn3_predict', n_clicks=0,
+            'Show Predict', id='tab1_btns_btn3_predict', n_clicks=0,
             style={'height': '40px', 'width': '100px'}
         ),
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
 
     html.Div([
-        html.Div('Accuracy :', id='tab1_box1_text_accuracy',
+        html.Div('Accuracy :', id='tab1_btns_text_accuracy',
                  style={'fontSize': 20, 'padding': '10px', 'display': 'inline-block'}),
-        html.Div([], id='tab1_box1_number_accuracy',
+        html.Div([], id='tab1_btns_number_accuracy',
                  style={'fontSize': 20, 'padding': '10px', 'display': 'inline-block'})
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom',
               'height': '40px', 'width': '200px', 'margin-left': '130px'}
@@ -113,35 +113,31 @@ tab1_box1_btns = html.Div([
 ])
 
 tab1 = html.Div([
-    html.Div([
-        tab1_box1_btns,
-        html.Br(),
-        html.Div([
-            dcc.Store(
-                id='tab1_box1_data',
-            ),
-            html.Div(
-                id='tab1_box1', children=[],
-                style={'display': 'inline-block', 'verticalAlign': 'top'}
-            ),
-            html.Div(
-                id='tab1_box2', children=[],
-                style={'display': 'inline-block', 'margin-left': '20px', 'verticalAlign': 'top'}
-            ),
-        ]),
-    ], style={
-        'border': '1px solid', 'padding': '10px',
-        'height': '780px',
-        'margin-left': '10px', 'margin-right': '10px', 'margin-bottom': '10px',
-        'border-radius': '4px',
-    })
-])
+    tab1_btns,
+    html.Br(),
+    html.Div(
+        id='tab1_box1', children=[],
+        style={'display': 'inline-block', 'verticalAlign': 'top'}
+    ),
+    dcc.Store(
+        id='tab1_data',
+    ),
+    html.Div(
+        id='tab1_box2', children=[],
+        style={'display': 'inline-block', 'verticalAlign': 'top', 'margin-left': '20px'}
+    ),
+], style={
+    'border': '1px solid', 'padding': '10px',
+    'height': '780px',
+    'margin-left': '10px', 'margin-right': '10px', 'margin-bottom': '10px',
+    'border-radius': '4px',
+})
 
 
 @app.callback(
     Output('tab1_box1', 'children'),
-    Input('tab1_box1_btn1_loaddata', 'n_clicks'),
-    State('tab1_box1_ddn1_mat', 'value')
+    Input('tab1_btns_btn1_loaddata', 'n_clicks'),
+    State('tab1_btns_ddn1_mat', 'value')
 )
 def make_tab1_box1_table1(btn, mat):
     print('[INIT] make_tab1_box1_table1 : ', btn, ctx.triggered_id)
@@ -180,6 +176,7 @@ def make_tab1_box1_table1(btn, mat):
             }
         )
 
+        print(data_table)
     else:
         data_table = None
 
@@ -187,8 +184,8 @@ def make_tab1_box1_table1(btn, mat):
 
 
 @app.callback(
-    Output('tab1_box1_data', 'data'),
-    Input('tab1_box1_btn2_savedata', 'n_clicks'),
+    Output('tab1_data', 'data'),
+    Input('tab1_btns_btn2_savedata', 'n_clicks'),
     State('tab1_box1_table1', 'data'),
 )
 def make_tab1_box1_data(btn, data_table):
@@ -206,10 +203,10 @@ def make_tab1_box1_data(btn, data_table):
 
 @app.callback(
     Output('tab1_box2', 'children'),
-    Output('tab1_box1_number_accuracy', 'children'),
-    Input('tab1_box1_btn3_predict', 'n_clicks'),
-    State('tab1_box1_ddn1_mat', 'value'),
-    State('tab1_box1_data', 'data'),
+    Output('tab1_btns_number_accuracy', 'children'),
+    Input('tab1_btns_btn3_predict', 'n_clicks'),
+    State('tab1_btns_ddn1_mat', 'value'),
+    State('tab1_data', 'data'),
 )
 def make_tab1_box1_table2(btn, mat, data_table):
     print('[INIT] make_tab1_box1_table2 : ', btn, ctx.triggered_id)
@@ -220,7 +217,7 @@ def make_tab1_box1_table2(btn, mat, data_table):
         print(' > mat, data_table : ', mat, data_table)
 
         data_table = dash_table.DataTable(
-            id='tab1_box2_table1',
+            # id='tab1_box2_table1',
             columns=[{'name': idx, 'id': idx, 'deletable': False} for idx in dict_info_material[mat].columns],
             data=data_table,
             editable=True,
