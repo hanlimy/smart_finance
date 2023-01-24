@@ -5,10 +5,17 @@ from dash import Dash, dash_table, html, dcc, Input, Output, State, ctx
 import plotly.express as px
 
 df_copper = pd.read_csv('collector/output_data/df_copper.csv')
-df_study = pd.read_csv('loc_flash/output_data/df_study.csv')
-df_study_agg = pd.read_csv('loc_flash/output_data/df_study_agg2.csv')
+df_gold = pd.read_csv('collector/output_data/df_gold.csv')
+df_oil = pd.read_csv('collector/output_data/df_oil.csv')
+df_silver = pd.read_csv('collector/output_data/df_silver.csv')
 
-list_info_line = ['LLLA', 'LLLB', 'LLLC']
+list_info_material = ['copper', 'gold', 'oil', 'silver']
+dict_info_material = {
+    'copper': df_copper,
+    'gold': df_gold,
+    'oil': df_oil,
+    'silver': df_silver,
+}
 list_info_proc = ['PPPA', 'PPPB', 'PPPC']
 
 
@@ -64,15 +71,15 @@ def make_tabs_content(tab):
 
 tab1_box1_btns = html.Div([
     html.Div([
-        html.Div('line', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
+        html.Div('Material', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
         dcc.Dropdown(
-            id='tab1_box1_ddn1', options=list_info_line, value=list_info_line[0],
+            id='tab1_box1_ddn1_mat', options=list_info_material, value=list_info_material[0],
             style={'height': '40px', 'width': '140px'})
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
     html.Div([
         html.Div('proc', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
         dcc.Dropdown(
-            id='tab1_box1_ddn2', options=list_info_line, value=list_info_line[0],
+            id='tab1_box1_ddn2', options=list_info_material, value=list_info_material[0],
             style={'height': '40px', 'width': '140px'}),
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
 
@@ -101,19 +108,51 @@ tab1_box1_btns = html.Div([
         html.Div([], id='tab1_box1_number_accuracy',
                  style={'fontSize': 20, 'padding': '10px', 'display': 'inline-block'})
     ], style={'display': 'inline-block', 'verticalAlign': 'bottom',
-              'height': '40px', 'width': '200px', 'margin-left': '130px',
-    }),
+              'height': '40px', 'width': '200px', 'margin-left': '130px'}
+    ),
 ])
 
-tab1_box1 = html.Div([
-
-    dcc.Store(id='tab1_box1_data'),
-
+tab1 = html.Div([
     html.Div([
-        dash_table.DataTable(
+        tab1_box1_btns,
+        html.Br(),
+        html.Div([
+            dcc.Store(
+                id='tab1_box1_data',
+            ),
+            html.Div(
+                id='tab1_box1', children=[],
+                style={'display': 'inline-block', 'verticalAlign': 'top'}
+            ),
+            html.Div(
+                id='tab1_box2', children=[],
+                style={'display': 'inline-block', 'margin-left': '20px', 'verticalAlign': 'top'}
+            ),
+        ]),
+    ], style={
+        'border': '1px solid', 'padding': '10px',
+        'height': '780px',
+        'margin-left': '10px', 'margin-right': '10px', 'margin-bottom': '10px',
+        'border-radius': '4px',
+    })
+])
+
+
+@app.callback(
+    Output('tab1_box1', 'children'),
+    Input('tab1_box1_btn1_loaddata', 'n_clicks'),
+    State('tab1_box1_ddn1_mat', 'value')
+)
+def make_tab1_box1_table1(btn, mat):
+    print('[INIT] make_tab1_box1_table1 : ', btn, ctx.triggered_id)
+    if btn != 0:
+        print(' > [IF] tab1_box1_btn1_loaddata : ', btn, ctx.triggered_id)
+        # dict_data = dict_info_material[mat].to_dict('records')
+
+        data_table = dash_table.DataTable(
             id='tab1_box1_table1',
-            columns=[{'name': idx, 'id': idx, 'deletable': False} for idx in df_copper.columns],
-            data=None,
+            columns=[{'name': idx, 'id': idx, 'deletable': False} for idx in dict_info_material[mat].columns],
+            data=dict_info_material[mat].to_dict('records'),
             editable=True,
 
             filter_action='native',
@@ -139,17 +178,52 @@ tab1_box1 = html.Div([
                 # 'textOverflow': 'ellipsis',
                 'font_family': 'Malgun Gothic', 'fontSize': 10,
             }
+        )
 
-        ),
-    ], style={
-        'display': 'inline-block', 'verticalAlign': 'top',
-    }),
+    else:
+        data_table = None
 
-    html.Div([
-        dash_table.DataTable(
-            id='tab1_box1_table2',
-            columns=[{'name': idx, 'id': idx, 'deletable': False} for idx in df_copper.columns],
-            data=None,
+    return data_table
+
+
+@app.callback(
+    Output('tab1_box1_data', 'data'),
+    Input('tab1_box1_btn2_savedata', 'n_clicks'),
+    State('tab1_box1_table1', 'data'),
+)
+def make_tab1_box1_data(btn, data_table):
+    print('[INIT] make_tab1_box1_data : ', btn, ctx.triggered_id)
+    if btn != 0:
+        print(' > [IF] tab1_box1_btn2_savedata : ', btn, ctx.triggered_id)
+
+        print(data_table)
+
+    else:
+        data_table = None
+
+    return data_table
+
+
+@app.callback(
+    Output('tab1_box2', 'children'),
+    Output('tab1_box1_number_accuracy', 'children'),
+    Input('tab1_box1_btn3_predict', 'n_clicks'),
+    State('tab1_box1_ddn1_mat', 'value'),
+    State('tab1_box1_data', 'data'),
+)
+def make_tab1_box1_table2(btn, mat, data_table):
+    print('[INIT] make_tab1_box1_table2 : ', btn, ctx.triggered_id)
+    if btn != 0:
+        print(' > [IF] tab1_box1_btn3_predict : ', btn, type(data_table))
+        number_accuracy = '99%'
+
+        print(' > mat, data_table : ', mat, data_table)
+
+        data_table = dash_table.DataTable(
+            id='tab1_box2_table1',
+            columns=[{'name': idx, 'id': idx, 'deletable': False} for idx in dict_info_material[mat].columns],
+            data=data_table,
+            editable=True,
 
             filter_action='native',
             sort_action='native',
@@ -159,10 +233,12 @@ tab1_box1 = html.Div([
             # page_size=20,
             # fixed_columns={'headers': True, 'data': 1},
             fixed_rows={'headers': True, 'data': 0},
+
             style_table={
                 'overlflowX': 'scroll',
                 'minHeight': '700px', 'height': '700px', 'maxHeight': '700px',
                 'minWidth': '700px', 'width': '700px', 'maxWidth': '700px',
+
             },
             style_cell={
                 'height': '80',
@@ -172,74 +248,13 @@ tab1_box1 = html.Div([
                 # 'textOverflow': 'ellipsis',
                 'font_family': 'Malgun Gothic', 'fontSize': 10,
             }
+        )
 
-        ),
-    ], style={
-        'display': 'inline-block', 'margin-left': '20px', 'verticalAlign': 'top',
-    }),
-])
-
-tab1 = html.Div([
-    html.Div([
-        tab1_box1_btns,
-        html.Br(),
-        tab1_box1,
-    ], style={
-        'border': '1px solid', 'padding': '10px',
-        'height': '780px',
-        'margin-left': '10px', 'margin-right': '10px', 'margin-bottom': '10px',
-        'border-radius': '4px',
-    })
-])
-
-
-@app.callback(
-    Output('tab1_box1_table1', 'data'),
-    Input('tab1_box1_btn1_loaddata', 'n_clicks'),
-)
-def make_tab1_box1_table1(btn):
-    print('[INIT] make_tab1_box1_table1 : ', btn, ctx.triggered_id)
-    if btn != 0:
-        print(' > [IF] tab1_box1_btn1_loaddata : ', btn, ctx.triggered_id)
-        dict_data = df_copper.to_dict('records')
     else:
-        dict_data = None
-
-    return dict_data
-
-
-@app.callback(
-    Output('tab1_box1_data', 'data'),
-    Input('tab1_box1_btn2_savedata', 'n_clicks'),
-    State('tab1_box1_table1', 'data'),
-)
-def make_tab1_box1_data(btn, dict_data):
-    print('[INIT] make_tab1_box1_data : ', btn, ctx.triggered_id)
-    if btn != 0:
-        print(' > [IF] tab1_box1_btn2_savedata : ', btn, ctx.triggered_id)
-    else:
-        dict_data = None
-
-    return dict_data
-
-
-@app.callback(
-    Output('tab1_box1_table2', 'data'),
-    Output('tab1_box1_number_accuracy', 'children'),
-    Input('tab1_box1_btn3_predict', 'n_clicks'),
-    State('tab1_box1_data', 'data'),
-)
-def make_tab1_box1_table2(btn, dict_data):
-    print('[INIT] make_tab1_box1_table2 : ', btn, ctx.triggered_id)
-    if btn != 0:
-        print(' > [IF] tab1_box1_btn3_predict : ', btn, type(dict_data))
-        df_data = pd.DataFrame(dict_data)
-        number_accuracy = '99%'
-    else:
-        dict_data = None
+        data_table = None
         number_accuracy = None
 
-    return dict_data, number_accuracy
+    return data_table, number_accuracy
 
 
 ########################################################################################################################
