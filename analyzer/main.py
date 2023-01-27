@@ -1,6 +1,7 @@
 from collector import get_nasdaq_quandl
 from visual import make_page
 
+
 def main():
 
     info_comm = {
