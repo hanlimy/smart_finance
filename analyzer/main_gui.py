@@ -4,10 +4,10 @@ import time
 from dash import Dash, dash_table, html, dcc, Input, Output, State, ctx
 import plotly.express as px
 
-df_copper = pd.read_csv('collector/output_data/df_copper.csv')
-df_gold = pd.read_csv('collector/output_data/df_gold.csv')
-df_oil = pd.read_csv('collector/output_data/df_oil.csv')
-df_silver = pd.read_csv('collector/output_data/df_silver.csv')
+df_copper = pd.read_csv('output_data/df_copper.csv')
+df_gold = pd.read_csv('output_data/df_gold.csv')
+df_oil = pd.read_csv('output_data/df_oil.csv')
+df_silver = pd.read_csv('output_data/df_silver.csv')
 
 list_info_material = ['copper', 'gold', 'oil', 'silver']
 dict_info_material = {
@@ -43,12 +43,8 @@ style_tab_selected = {
 
 app.layout = html.Div([
     dcc.Tabs(id="tabs", value='tab1', children=[
-        dcc.Tab(
-            label='Prediction', value='tab1', style=style_tab, selected_style=style_tab_selected,
-        ),
-        dcc.Tab(
-            label='Analysis', value='tab2', style=style_tab, selected_style=style_tab_selected,
-        ),
+        dcc.Tab(label='Prediction', value='tab1', style=style_tab, selected_style=style_tab_selected),
+        dcc.Tab(label='Analysis', value='tab2', style=style_tab, selected_style=style_tab_selected,),
     ], style={'margin-left': '10px'}),
 
     html.Div(id='tabs_content')
@@ -68,6 +64,7 @@ def make_tabs_content(tab):
 
 
 ########################################################################################################################
+
 
 tab1_btns = html.Div([
     html.Div([
@@ -256,6 +253,7 @@ def make_tab1_box1_table2(btn, mat, data_table):
 
 ########################################################################################################################
 
+
 tab2 = html.Div([
     html.Div([
     ], style={
@@ -269,5 +267,6 @@ tab2 = html.Div([
 
 ########################################################################################################################
 
+
 if __name__ == '__main__':
-    app.run_server(debug=False, host='0.0.0.0', port=8082)
+    app.run_server(debug=False, host='0.0.0.0', port=8080)

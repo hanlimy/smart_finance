@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import random
@@ -14,18 +13,21 @@ def get_nasdaq_quandl():
     import quandl
     quandl.ApiConfig.api_key = "h4m1wXxBGk62tH6XfeWa"
 
-    date_start = '2021-01-01'
-    date_end = '2022-01-13'
+    date_start = '2022-01-01'
+    date_end = '2022-12-31'
 
-    df_gold = quandl.get("LBMA/GOLD", trim_start=date_start, trim_end=date_end)
-    df_silver = quandl.get("LBMA/SILVER", trim_start=date_start, trim_end=date_end)
-    df_copper = quandl.get("CHRIS/CME_HG10", trim_start=date_start, trim_end=date_end)
-    df_oil = quandl.get("OPEC/ORB", trim_start=date_start, trim_end=date_end)
+    dict_src_nasdaq = {
+        'gold': 'LBMA/GOLD',
+        'silver': 'LBMA/SILVER',
+        'copper': 'CHRIS/CME_HG10',
+        'oil': 'OPEC/ORB',
+    }
 
-    df_gold.to_csv('{}/df_gold.csv'.format(path_output))
-    df_silver.to_csv('{}/df_silver.csv'.format(path_output))
-    df_copper.to_csv('{}/df_copper.csv'.format(path_output))
-    df_oil.to_csv('{}/df_oil.csv'.format(path_output))
+    for key in dict_src_nasdaq.keys():
+        print('key :', key)
+
+        df_data = quandl.get(dict_src_nasdaq[key], trim_start=date_start, trim_end=date_end)
+        df_data.to_csv('{}/df_{}.csv'.format(path_output, key))
 
 
 def get_kosdaq_fdr():
@@ -49,3 +51,5 @@ def get_kor_pdr():
     df = api.get_price_index(**params)
     print(df.tail())
 
+
+get_nasdaq_quandl()
