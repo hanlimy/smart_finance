@@ -1,33 +1,14 @@
-import pandas as pd
-import numpy as np
-import random
-
-seed = 42
-np.random.seed(seed)
-random.seed(seed)
-
-
-def get_nasdaq_quandl():
-    path_output = 'output_data'
+def get_nasdaq_quandl(info_comm):
 
     import quandl
     quandl.ApiConfig.api_key = "h4m1wXxBGk62tH6XfeWa"
 
-    date_start = '2022-01-01'
-    date_end = '2022-12-31'
-
-    dict_src_nasdaq = {
-        'gold': 'LBMA/GOLD',
-        'silver': 'LBMA/SILVER',
-        'copper': 'CHRIS/CME_HG10',
-        'oil': 'OPEC/ORB',
-    }
-
-    for key in dict_src_nasdaq.keys():
+    for key in info_comm['src_nasdaq'].keys():
         print('key :', key)
 
-        df_data = quandl.get(dict_src_nasdaq[key], trim_start=date_start, trim_end=date_end)
-        df_data.to_csv('{}/df_{}.csv'.format(path_output, key))
+        df_data = quandl.get(info_comm['src_nasdaq'][key], trim_start=info_comm['date_start'], trim_end=info_comm['date_end'])
+
+        df_data.to_csv('{}/df_nasdaq_{}.csv'.format(info_comm['path_output'], key))
 
 
 def get_kosdaq_fdr():
@@ -52,4 +33,7 @@ def get_kor_pdr():
     print(df.tail())
 
 
-get_nasdaq_quandl()
+if __name__ == "__main__":
+    get_nasdaq_quandl()
+    # get_kosdaq_fdr()
+    # get_kor_pdr()
