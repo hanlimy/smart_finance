@@ -1,8 +1,8 @@
 import pandas as pd
-import time
+# import time
 
 from dash import Dash, dash_table, html, dcc, Input, Output, State, ctx
-import plotly.express as px
+# import plotly.express as px
 
 
 def make_page(info_comm):
@@ -16,9 +16,7 @@ def make_page(info_comm):
     for mat in list_material:
         dict_material.update({mat: pd.read_csv('output_data/df_nasdaq_{}.csv'.format(mat))})
 
-
     ####################################################################################################################
-
 
     app = Dash(__name__)
     app.config.suppress_callback_exceptions = True
@@ -49,7 +47,6 @@ def make_page(info_comm):
         html.Div(id='tabs_content')
     ])
 
-
     @app.callback(
         Output('tabs_content', 'children'),
         [Input('tabs', 'value')]
@@ -61,9 +58,7 @@ def make_page(info_comm):
         elif tab == 'tab2':
             return tab2
 
-
     ####################################################################################################################
-
 
     tab1_btns = html.Div([
         html.Div([
@@ -129,7 +124,6 @@ def make_page(info_comm):
         'border-radius': '4px',
     })
 
-
     @app.callback(
         Output('tab1_box1', 'children'),
         Input('tab1_btns_btn1_loaddata', 'n_clicks'),
@@ -178,7 +172,6 @@ def make_page(info_comm):
 
         return data_table
 
-
     @app.callback(
         Output('tab1_data', 'data'),
         Input('tab1_btns_btn2_savedata', 'n_clicks'),
@@ -195,7 +188,6 @@ def make_page(info_comm):
             data_table = None
 
         return data_table
-
 
     @app.callback(
         Output('tab1_box2', 'children'),
@@ -249,9 +241,7 @@ def make_page(info_comm):
 
         return data_table, number_accuracy
 
-
     ####################################################################################################################
-
 
     tab2 = html.Div([
         html.Div([
@@ -266,4 +256,3 @@ def make_page(info_comm):
     ####################################################################################################################
 
     app.run_server(debug=False, host='0.0.0.0', port=8080)
-
