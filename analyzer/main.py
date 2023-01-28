@@ -17,7 +17,7 @@ def main():
         },
     }
 
-    get_nasdaq_quandl(info_comm)
+    # get_nasdaq_quandl(info_comm)
     make_page(info_comm)
 
 

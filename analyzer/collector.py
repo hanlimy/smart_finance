@@ -5,13 +5,13 @@ def get_nasdaq_quandl(info_comm):
     quandl.ApiConfig.api_key = "h4m1wXxBGk62tH6XfeWa"
 
     for key in info_comm['src_nasdaq'].keys():
-        print('key :', key)
+        print(' > src in nasdaq : ', key)
 
         df_data = quandl.get(
             info_comm['src_nasdaq'][key], trim_start=info_comm['date_start'], trim_end=info_comm['date_end']
         )
 
-        df_data.to_csv('{}/df_nasdaq_{}.csv'.format(info_comm['path_output'], key))
+        df_data.to_csv('{}/df_src_nasdaq_{}.csv'.format(info_comm['path_output'], key))
 
 
 def get_kosdaq_fdr():
