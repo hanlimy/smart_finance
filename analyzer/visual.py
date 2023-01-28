@@ -85,7 +85,7 @@ def make_page(info_comm):
         html.Div([
             html.Div('column', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
             html.Div(id='tab1_area1_ddn3_empty'),
-        ], style={'display': 'inline-block', 'verticalAlign': 'bottom', 'margin-left': '80px'}),
+        ], style={'display': 'inline-block', 'verticalAlign': 'bottom', 'margin-left': '20px'}),
 
         # tab1_area1_box2
         html.Div([
@@ -113,9 +113,11 @@ def make_page(info_comm):
         html.Div([
             html.Div('column', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
             html.Div(id='tab1_area1_ddn6_empty'),
-        ], style={'display': 'inline-block', 'verticalAlign': 'bottom', 'margin-left': '80px'}),
+        ], style={'display': 'inline-block', 'verticalAlign': 'bottom', 'margin-left': '20px'}),
     ])
-    
+
+    # ---------------------------------------------------------------------------------------------------------------- #
+
     tab1 = html.Div([
         tab1_area1,
 
