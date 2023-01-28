@@ -1,31 +1,36 @@
-def get_nasdaq_quandl(info_comm):
-    print('[get_nasdaq_quandl]')
+import quandl
+import FinanceDataReader as fdr
+from PublicDataReader import Kbland
 
-    import quandl
-    quandl.ApiConfig.api_key = "h4m1wXxBGk62tH6XfeWa"
-
-    for key in info_comm['src_nasdaq'].keys():
-        print(' > src in nasdaq : ', key)
-
-        df_data = quandl.get(
-            info_comm['src_nasdaq'][key], trim_start=info_comm['date_start'], trim_end=info_comm['date_end']
-        )
-
-        df_data.to_csv('{}/df_src_nasdaq_{}.csv'.format(info_comm['path_output'], key))
+quandl.ApiConfig.api_key = "h4m1wXxBGk62tH6XfeWa"
 
 
-def get_kosdaq_fdr():
-    print('[get_kosdaq_fdr]')
-    # import FinanceDataReader as fdr
+def get_data_from_src(info_comm):
+    print('[get_data_from_src]')
 
-    # df_krx = fdr.StockListing('KRX')
-    # df_`appl = fdr.DataReader('AAPL', '2020-01-01', '2020-01-30')
+    for idx in info_comm['index_stock']:
+        print(' > index_stock : {}'. format(idx))
+        df_idx = fdr.StockListing(idx)
+        df_idx.to_csv('{}/df_idx_{}.csv'.format(info_comm['path_output'], idx))
+
+    list_source = [src for src in info_comm.keys() if 'src' in src]
+    for src in list_source:
+        print(' > src : {}'.format(src))
+        for item in info_comm[src]:
+            print('  >> item : {}'.format(item))
+            df_data = None
+            if src in ['src_material']:
+                df_data = quandl.get(
+                    info_comm[src][item], trim_start=info_comm['date_start'], trim_end=info_comm['date_end']
+                )
+            elif src in ['src_kosdaq', 'src_nasdaq']:
+                df_data = fdr.DataReader(info_comm[src][item], info_comm['date_start'], info_comm['date_end'])
+
+            df_data.to_csv('{}/df_{}_{}.csv'.format(info_comm['path_output'], src, item))
 
 
 def get_kor_pdr():
     print('[get_kor_pdr]')
-
-    from PublicDataReader import Kbland
 
     api = Kbland()
     params = {

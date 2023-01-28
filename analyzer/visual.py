@@ -2,22 +2,18 @@ import pandas as pd
 
 from dash import Dash, dash_table, html, dcc, Input, Output, State, ctx
 import plotly.express as px
-import matplotlib.pyplot as plt
 
 
 def make_page(info_comm):
-    list_source = [key for key in info_comm.keys() if 'src' in key]
-    list_material = [mat for key in list_source for mat in info_comm[key]]
-
     print('[make_page]')
-    print(' > list_source : ', list_source)
-    print(' > list_material : ', list_material)
 
-    dict_src_mat = dict()
+    dict_src_item = dict()
+
+    list_source = [src for src in info_comm.keys() if 'src' in src]
     for src in list_source:
-        for mat in list_material:
-            dict_src_mat.update({
-                src + '_' + mat: pd.read_csv('output_data/df_{}_{}.csv'.format(src, mat))
+        for item in info_comm[src]:
+            dict_src_item.update({
+                src + '_' + item: pd.read_csv('output_data/df_{}_{}.csv'.format(src, item))
             })
 
     ####################################################################################################################
@@ -62,6 +58,8 @@ def make_page(info_comm):
     ####################################################################################################################
 
     tab1_area1 = html.Div([
+
+        # tab1_area1_box1
         html.Div([
             html.Div('source', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
             dcc.Dropdown(
@@ -69,10 +67,8 @@ def make_page(info_comm):
                 style={'height': '40px', 'width': '140px'})
         ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
         html.Div([
-            html.Div('material', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
-            dcc.Dropdown(
-                id='tab1_area1_ddn2_mat', options=list_material, value=list_material[0],
-                style={'height': '40px', 'width': '140px'}),
+            html.Div('item', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
+            html.Div(id='tab1_area1_ddn2_empty'),
         ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
         html.Div([
             html.Button(
@@ -89,8 +85,9 @@ def make_page(info_comm):
         html.Div([
             html.Div('column', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
             html.Div(id='tab1_area1_ddn3_empty'),
-        ], style={'display': 'inline-block', 'verticalAlign': 'bottom', 'margin-left': '20px'}),
+        ], style={'display': 'inline-block', 'verticalAlign': 'bottom', 'margin-left': '80px'}),
 
+        # tab1_area1_box2
         html.Div([
             html.Div('source', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
             dcc.Dropdown(
@@ -98,10 +95,8 @@ def make_page(info_comm):
                 style={'height': '40px', 'width': '140px'})
         ], style={'display': 'inline-block', 'verticalAlign': 'bottom', 'margin-left': '120px'}),
         html.Div([
-            html.Div('material', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
-            dcc.Dropdown(
-                id='tab1_area1_ddn5_mat', options=list_material, value=list_material[0],
-                style={'height': '40px', 'width': '140px'}),
+            html.Div('item', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
+            html.Div(id='tab1_area1_ddn5_empty'),
         ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
         html.Div([
             html.Button(
@@ -118,7 +113,7 @@ def make_page(info_comm):
         html.Div([
             html.Div('column', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
             html.Div(id='tab1_area1_ddn6_empty'),
-        ], style={'display': 'inline-block', 'verticalAlign': 'bottom', 'margin-left': '20px'}),
+        ], style={'display': 'inline-block', 'verticalAlign': 'bottom', 'margin-left': '80px'}),
     ])
     
     tab1 = html.Div([
@@ -184,11 +179,30 @@ def make_page(info_comm):
     # ---------------------------------------------------------------------------------------------------------------- #
 
     @app.callback(
+        Output('tab1_area1_ddn2_empty', 'children'),
+        Input('tab1_area1_ddn1_src', 'value'),
+    )
+    def make_tab1_area1_ddn2_empty(val):
+        print('[INIT] make_tab1_area1_ddn2_empty : ', val, ctx.triggered_id)
+        if val is not None:
+            print(' > [IF] tab1_area1_ddn1_src : ', val, ctx.triggered_id)
+
+            list_item = list(info_comm[val].keys())
+            ddn = dcc.Dropdown(
+                id='tab1_area1_ddn2_item', options=list_item, value=list_item[0],
+                style={'height': '40px', 'width': '140px'}
+            ),
+        else:
+            ddn = dcc.Dropdown(style={'height': '40px', 'width': '140px'}),
+
+        return ddn
+
+    @app.callback(
         Output('tab1_area2_empty1', 'children'),
         Output('tab1_area1_ddn3_empty', 'children'),
         Input('tab1_area1_btn1_loaddata', 'n_clicks'),
         State('tab1_area1_ddn1_src', 'value'),
-        State('tab1_area1_ddn2_mat', 'value'),
+        State('tab1_area1_ddn2_item', 'value'),
     )
     def make_tab1_area2_table1(btn, src, mat):
         print('[INIT] make_tab1_area2_table1 : ', btn, ctx.triggered_id)
@@ -197,8 +211,8 @@ def make_page(info_comm):
             key = src + '_' + mat
             data_table = dash_table.DataTable(
                 id='tab1_area2_table1',
-                columns=[{'name': idx, 'id': idx, 'deletable': False} for idx in dict_src_mat[key].columns],
-                data=dict_src_mat[key].to_dict('records'),
+                columns=[{'name': idx, 'id': idx, 'deletable': False} for idx in dict_src_item[key].columns],
+                data=dict_src_item[key].to_dict('records'),
                 editable=True,
 
                 fixed_rows={'headers': True, 'data': 0},
@@ -219,17 +233,17 @@ def make_page(info_comm):
             )
             print(' > data_table :', data_table)
 
-            list_col = [col for col in dict_src_mat[key].columns if col not in ['Date']]
-            dnn = dcc.Dropdown(
+            list_col = [col for col in dict_src_item[key].columns if col not in ['Date']]
+            ddn = dcc.Dropdown(
                 id='tab1_area1_ddn3_col', options=list_col, value=list_col[0],
                 style={'height': '40px', 'width': '140px'}
             ),
 
         else:
             data_table = None
-            dnn = dcc.Dropdown(style={'height': '40px', 'width': '140px'})
+            ddn = dcc.Dropdown(style={'height': '40px', 'width': '140px'})
 
-        return data_table, dnn
+        return data_table, ddn
 
     @app.callback(
         Output('tab1_area2_data_table1', 'data'),
@@ -240,18 +254,36 @@ def make_page(info_comm):
         print('[INIT] make_tab1_area2_data_table1 : ', btn, ctx.triggered_id)
         if btn != 0:
             print(' > [IF] tab1_area1_btn2_savedata : ', btn, ctx.triggered_id)
-            print(data_table)
         else:
             data_table = None
 
         return data_table
 
     @app.callback(
+        Output('tab1_area1_ddn5_empty', 'children'),
+        Input('tab1_area1_ddn4_src', 'value'),
+    )
+    def make_tab1_area1_ddn5_empty(val):
+        print('[INIT] make_tab1_area1_ddn5_empty : ', val, ctx.triggered_id)
+        if val is not None:
+            print(' > [IF] tab1_area1_ddn4_src : ', val, ctx.triggered_id)
+
+            list_item = list(info_comm[val].keys())
+            ddn = dcc.Dropdown(
+                id='tab1_area1_ddn5_item', options=list_item, value=list_item[0],
+                style={'height': '40px', 'width': '140px'}
+            ),
+        else:
+            ddn = dcc.Dropdown(style={'height': '40px', 'width': '140px'}),
+
+        return ddn
+
+    @app.callback(
         Output('tab1_area2_empty2', 'children'),
         Output('tab1_area1_ddn6_empty', 'children'),
         Input('tab1_area1_btn3_loaddata', 'n_clicks'),
         State('tab1_area1_ddn4_src', 'value'),
-        State('tab1_area1_ddn5_mat', 'value'),
+        State('tab1_area1_ddn5_item', 'value'),
     )
     def make_tab1_area2_table2(btn, src, mat):
         print('[INIT] make_tab1_area2_table2 : ', btn, ctx.triggered_id)
@@ -260,8 +292,8 @@ def make_page(info_comm):
             key = src + '_' + mat
             data_table = dash_table.DataTable(
                 id='tab1_area2_table2',
-                columns=[{'name': idx, 'id': idx, 'deletable': False} for idx in dict_src_mat[key].columns],
-                data=dict_src_mat[key].to_dict('records'),
+                columns=[{'name': idx, 'id': idx, 'deletable': False} for idx in dict_src_item[key].columns],
+                data=dict_src_item[key].to_dict('records'),
                 editable=True,
 
                 fixed_rows={'headers': True, 'data': 0},
@@ -282,17 +314,17 @@ def make_page(info_comm):
             )
             print(' > data_table :', data_table)
 
-            list_col = [col for col in dict_src_mat[key].columns if col not in ['Date']]
-            dnn = dcc.Dropdown(
+            list_col = [col for col in dict_src_item[key].columns if col not in ['Date']]
+            ddn = dcc.Dropdown(
                 id='tab1_area1_ddn6_col', options=list_col, value=list_col[0],
                 style={'height': '40px', 'width': '140px'}
             ),
 
         else:
             data_table = None
-            dnn = dcc.Dropdown(style={'height': '40px', 'width': '140px'})
+            ddn = dcc.Dropdown(style={'height': '40px', 'width': '140px'})
 
-        return data_table, dnn
+        return data_table, ddn
 
     @app.callback(
         Output('tab1_area2_data_table2', 'data'),
@@ -303,7 +335,6 @@ def make_page(info_comm):
         print('[INIT] make_tab1_area2_data_table2 : ', btn, ctx.triggered_id)
         if btn != 0:
             print(' > [IF] tab1_area1_btn4_savedata : ', btn, ctx.triggered_id)
-            print(data_table)
         else:
             data_table = None
 
@@ -324,10 +355,6 @@ def make_page(info_comm):
         print('[INIT] make_tab1_area4_graph : ', btn, ctx.triggered_id)
         if btn != 0:
             print(' > [IF] tab1_area3_btn1_showgraph : ', btn, ctx.triggered_id)
-            # df_1 = pd.DataFrame(dict_table1)[['Date', col1]].set_index('Date')
-            # df_2 = pd.DataFrame(dict_table2)[['Date', col2]].set_index('Date')
-            # df_tmp = pd.merge(df_1, df_2, on='Date', how='inner')
-            # print(df_tmp)
 
             df_1 = pd.DataFrame(dict_table1).set_index('Date')
             df_2 = pd.DataFrame(dict_table2).set_index('Date')
@@ -345,15 +372,13 @@ def make_page(info_comm):
             heatmap = px.imshow(df_corr, color_continuous_scale='Blues', origin='lower')
             # fig = px.colors.sequential.swatches_continuous()
 
-            df = px.data.gapminder()
-            print(df)
+            # df = px.data.gapminder()
+            df_comp = pd.merge(df_1[[col1]], df_2[[col2]], on='Date', how='inner')
+            df_comp = df_comp.reset_index()
 
-            df_tmp = pd.merge(df_1[[col1]], df_2[[col2]], on='Date', how='inner')
-            print(df_tmp)
-            linemap = px.line(df_tmp, x=df_tmp.index, y=col1, line_shape='spline', render_mode='svg')
+            lineplot = px.line(df_comp, x='Date', y=df_comp.columns, line_shape='spline', render_mode='svg')
 
             df_pop = px.data.gapminder().query('year == 2007')
-            # print(df_pop)
             treemap = px.treemap(
                 df_pop,
                 path=[px.Constant('world'), 'continent', 'country'], values='pop',
@@ -362,17 +387,11 @@ def make_page(info_comm):
 
         else:
             heatmap = None
-            linemap = None
+            lineplot = None
             treemap = None
 
-        return heatmap, linemap, treemap, treemap
+        return heatmap, lineplot, treemap, treemap
     
-    
-    
-    
-    
-    
-
     ####################################################################################################################
 
     tab2 = html.Div([
