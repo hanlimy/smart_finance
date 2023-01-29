@@ -66,6 +66,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/analyzer/output_data/df_src_kosdaq_lgchem.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/analyzer/output_data/df_src_kosdaq_sec.csv">
           <value>
             <Attribute>

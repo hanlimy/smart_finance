@@ -9,19 +9,28 @@ quandl.ApiConfig.api_key = "h4m1wXxBGk62tH6XfeWa"
 def get_data_from_src(info_comm):
     print('[get_data_from_src]')
 
-    for idx in info_comm['index_stock']:
-        print(' > index_stock : {}'. format(idx))
-        df_idx = fdr.StockListing(idx)
-        df_idx.to_csv('{}/df_idx_{}.csv'.format(info_comm['path_output'], idx))
+    for src in info_comm['index_stock']:
+        print(' > index_stock : {}'. format(src))
+        df_idx = fdr.StockListing(src)
+        df_idx.to_csv('{}/df_idx_{}.csv'.format(info_comm['path_output'], src))
+        df_item_code = pd.read_csv('{}/df_idx_{}.csv'.format(info_comm['path_output'], src))
+        
+        tr_value = None
+        if src in ['KRX']:
+            tr_value = 'Code'
+        if src in ['NASDAQ']:
+            tr_value = 'Symbol'
 
-    idx = 'KRX'
-    df_item_code = pd.read_csv('{}/df_idx_{}.csv'.format(info_comm['path_output'], idx))
-    df_item_code_sample = df_item_code[['Code', 'Name']].set_index('Name', drop=True).iloc[0:10]
-    dict_item_code_sample = df_item_code_sample.T.to_dict('records')[0]
-    info_comm['src_kosdaq'] = dict_item_code_sample
-    print(dict_item_code_sample)
+        num_samples = 10
+        df_item_code_sample = df_item_code[['Name', tr_value]].set_index('Name', drop=True).iloc[0:num_samples]
+        dict_item_code_sample = df_item_code_sample.T.to_dict('records')[0]
+        
+        src_name = 'src_' + src
+        info_comm[src_name] = dict_item_code_sample
+        print(dict_item_code_sample)
 
     list_source = [src for src in info_comm.keys() if 'src' in src]
+    print(' > list_source : ', list_source)
     for src in list_source:
         print(' > src : {}'.format(src))
         for item in info_comm[src]:
@@ -31,7 +40,7 @@ def get_data_from_src(info_comm):
                 df_data = quandl.get(
                     info_comm[src][item], trim_start=info_comm['date_start'], trim_end=info_comm['date_end']
                 )
-            elif src in ['src_kosdaq', 'src_nasdaq']:
+            elif src in ['src_KRX', 'src_NASDAQ']:
                 df_data = fdr.DataReader(info_comm[src][item], info_comm['date_start'], info_comm['date_end'])
 
             df_data.to_csv('{}/df_{}_{}.csv'.format(info_comm['path_output'], src, item))

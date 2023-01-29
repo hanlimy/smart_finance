@@ -11,20 +11,12 @@ def main():
 
         'index_stock': [
             'KRX',
-            # 'NASDAQ',
+            'NASDAQ',
             # 'S&P500',
         ],
 
-        'src_kosdaq': {
-            'sec': '005930',
-            'hynix': '000660',
-            'lgchem': '051910',
-            'naver': '035420',
-        },
-
-        'src_nasdaq': {
-            'apple': 'AAPL'
-        },
+        'src_KRX': None,
+        'src_NASDAQ': None,
 
         'src_material': {
             'gold': 'LBMA/GOLD',

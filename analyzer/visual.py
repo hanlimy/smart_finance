@@ -392,7 +392,7 @@ def make_page(info_comm):
 
             # graph 3
             df_comp_total = pd.DataFrame()
-            for item in info_comm['src_kosdaq']:
+            for item in info_comm[src1]:
                 df_tmp = pd.read_csv('output_data/df_{}_{}.csv'.format(src1, item)).set_index('Date')
 
                 base_num = df_tmp.loc[df_tmp.index[0], col1]
