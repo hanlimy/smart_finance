@@ -1,3 +1,4 @@
+import pandas as pd
 import quandl
 import FinanceDataReader as fdr
 from PublicDataReader import Kbland
@@ -12,6 +13,13 @@ def get_data_from_src(info_comm):
         print(' > index_stock : {}'. format(idx))
         df_idx = fdr.StockListing(idx)
         df_idx.to_csv('{}/df_idx_{}.csv'.format(info_comm['path_output'], idx))
+
+    idx = 'KRX'
+    df_item_code = pd.read_csv('{}/df_idx_{}.csv'.format(info_comm['path_output'], idx))
+    df_item_code_sample = df_item_code[['Code', 'Name']].set_index('Name', drop=True).iloc[0:10]
+    dict_item_code_sample = df_item_code_sample.T.to_dict('records')[0]
+    info_comm['src_kosdaq'] = dict_item_code_sample
+    print(dict_item_code_sample)
 
     list_source = [src for src in info_comm.keys() if 'src' in src]
     for src in list_source:

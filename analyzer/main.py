@@ -10,8 +10,21 @@ def main():
         'path_output': 'output_data',
 
         'index_stock': [
-            'KRX', 'NASDAQ', 'S&P500'
+            'KRX',
+            # 'NASDAQ',
+            # 'S&P500',
         ],
+
+        'src_kosdaq': {
+            'sec': '005930',
+            'hynix': '000660',
+            'lgchem': '051910',
+            'naver': '035420',
+        },
+
+        'src_nasdaq': {
+            'apple': 'AAPL'
+        },
 
         'src_material': {
             'gold': 'LBMA/GOLD',
@@ -20,18 +33,9 @@ def main():
             'oil': 'OPEC/ORB',
         },
 
-        'src_kosdaq': {
-            'sec': '005930',
-        },
-
-        'src_nasdaq': {
-            'apple': 'AAPL'
-        }
-
-
     }
 
-    # get_data_from_src(info_comm)
+    get_data_from_src(info_comm)
     make_page(info_comm)
 
 

@@ -348,38 +348,52 @@ def make_page(info_comm):
         Output('tab1_area5_graph1', 'figure'),
         Output('tab1_area5_graph2', 'figure'),
         Input('tab1_area3_btn1_showgraph', 'n_clicks'),
+
+        State('tab1_area1_ddn1_src', 'value'),
+        State('tab1_area1_ddn2_item', 'value'),
+        State('tab1_area1_ddn4_src', 'value'),
+        State('tab1_area1_ddn5_item', 'value'),
+
         State('tab1_area2_data_table1', 'data'),
         State('tab1_area1_ddn3_col', 'value'),
         State('tab1_area2_data_table2', 'data'),
         State('tab1_area1_ddn6_col', 'value'),
     )
-    def make_tab1_area4_graph(btn, dict_table1, col1, dict_table2, col2):
+    def make_tab1_area4_graph(btn, src1, item1, src2, item2, dict_table1, col1, dict_table2, col2):
         print('[INIT] make_tab1_area4_graph : ', btn, ctx.triggered_id)
         if btn != 0:
             print(' > [IF] tab1_area3_btn1_showgraph : ', btn, ctx.triggered_id)
 
             df_1 = pd.DataFrame(dict_table1).set_index('Date')
             df_2 = pd.DataFrame(dict_table2).set_index('Date')
-            print(' > shape original | df_1 : {} | df_2 : {}'.format(df_1.shape, df_2.shape))
-
             list_same_date = sorted(set(df_1.index) & set(df_2.index))
-            print(' > list_same_date : ', list_same_date)
-
             df_1 = df_1.loc[list_same_date]
             df_2 = df_2.loc[list_same_date]
-            print(' > shape common | df_1 : {} | df_2 : {}'.format(df_1.shape, df_2.shape))
 
+            # graph 1: corr map
             df_sum = pd.merge(df_1, df_2, on='Date', how='inner')
             df_corr = df_sum.corr()
             heatmap = px.imshow(df_corr, color_continuous_scale='Blues', origin='lower')
             # fig = px.colors.sequential.swatches_continuous()
 
-            # df = px.data.gapminder()
-            df_comp = pd.merge(df_1[[col1]], df_2[[col2]], on='Date', how='inner')
-            df_comp = df_comp.reset_index()
+            # graph 2: line graph
+            base_num_1 = df_1.loc[df_1.index[0], col1]
+            df_1_tr = df_1[[col1]].apply(lambda x: x/base_num_1-1)
+            base_num_2 = df_2.loc[df_2.index[0], col2]
+            df_2_tr = df_2[[col2]].apply(lambda x: x/base_num_2-1)
+
+            df_comp = pd.merge(df_1_tr, df_2_tr, on='Date', how='inner').reset_index()
+            if col1 == col2:
+                col1 = col1 + '_x'
+                col2 = col2 + '_y'
+
+            col1_new = src1 + '_' + item1 + '_' + col1
+            col2_new = src2 + '_' + item2 + '_' + col2
+            df_comp = df_comp.rename(columns={col1: col1_new, col2: col2_new})
 
             lineplot = px.line(df_comp, x='Date', y=df_comp.columns, line_shape='spline', render_mode='svg')
 
+            # example : heatmap pop
             df_pop = px.data.gapminder().query('year == 2007')
             treemap = px.treemap(
                 df_pop,

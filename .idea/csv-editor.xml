@@ -59,6 +59,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/analyzer/output_data/df_src_kosdaq_sec.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/analyzer/output_data/df_src_material_copper.csv">
           <value>
             <Attribute>
@@ -116,6 +123,13 @@
           </value>
         </entry>
         <entry key="/analyzer/output_data/df_src_nasdaq_silver.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/smart_finance/predict_stock/output_data/4-01-01_df_study_sampled_pred.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
