@@ -382,18 +382,32 @@ def make_page(info_comm):
             base_num_2 = df_2.loc[df_2.index[0], col2]
             df_2_tr = df_2[[col2]].apply(lambda x: x/base_num_2-1)
 
-            df_comp = pd.merge(df_1_tr, df_2_tr, on='Date', how='inner').reset_index()
-            if col1 == col2:
-                col1 = col1 + '_x'
-                col2 = col2 + '_y'
-
             col1_new = src1 + '_' + item1 + '_' + col1
             col2_new = src2 + '_' + item2 + '_' + col2
-            df_comp = df_comp.rename(columns={col1: col1_new, col2: col2_new})
+            df_1_tr = df_1_tr.rename(columns={col1: col1_new})
+            df_2_tr = df_2_tr.rename(columns={col2: col2_new})
+            df_comp = pd.merge(df_1_tr, df_2_tr, on='Date', how='inner').reset_index()
 
             lineplot = px.line(df_comp, x='Date', y=df_comp.columns, line_shape='spline', render_mode='svg')
 
-            # example : heatmap pop
+            # graph 3
+            df_comp_total = pd.DataFrame()
+            for item in info_comm['src_kosdaq']:
+                df_tmp = pd.read_csv('output_data/df_{}_{}.csv'.format(src1, item)).set_index('Date')
+
+                base_num = df_tmp.loc[df_tmp.index[0], col1]
+                df_tmp_tr = df_tmp[[col1]].apply(lambda x: x / base_num - 1)
+                df_tmp_tr = df_tmp_tr.rename(columns={col1: item})
+                if len(df_comp_total.columns) == 0:
+                    df_comp_total = df_tmp_tr.copy()
+                else:
+                    df_comp_total = pd.merge(df_comp_total, df_tmp_tr, on='Date', how='outer')
+
+            df_comp_total = df_comp_total.reset_index()
+
+            lineplot_all = px.line(df_comp_total, x='Date', y=df_comp_total.columns, line_shape='spline', render_mode='svg')
+
+            # graph 4 : heatmap pop
             df_pop = px.data.gapminder().query('year == 2007')
             treemap = px.treemap(
                 df_pop,
@@ -404,9 +418,10 @@ def make_page(info_comm):
         else:
             heatmap = None
             lineplot = None
+            lineplot_all = None
             treemap = None
 
-        return heatmap, lineplot, treemap, treemap
+        return heatmap, lineplot, lineplot_all, treemap
     
     ####################################################################################################################
 
