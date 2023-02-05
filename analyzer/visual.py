@@ -5,15 +5,29 @@ import plotly.express as px
 
 
 def make_page(info_comm):
-    print('[make_page]')
+    print('-' * 100 + '\n[make_page]')
 
-    dict_src_item = dict()
+    dict_df_src_item = dict()
 
-    list_source = [src for src in info_comm.keys() if 'src' in src]
+    list_source = [src for src in info_comm['box_code'].keys()]
+    print(' > list_source : {}'.format(list_source))
+
     for src in list_source:
-        for item in info_comm[src]:
-            dict_src_item.update({
-                src + '_' + item: pd.read_csv('output_data/df_{}_{}.csv'.format(src, item))
+        if src in ['Material']:
+            continue
+
+        df_index = pd.read_csv('{}/df_index_{}.csv'.format(info_comm['path_output'], src))
+        df_src = pd.read_csv('{}/df_src_{}.csv'.format(info_comm['path_output'], src))
+
+        num_samples = 10
+        list_item = df_index.loc[0:num_samples, 'Name'].values
+
+        # print(' >> list_item : {}'.format(list_item))
+        for item in list_item:
+            # print('   >>> item : {}'.format(item))
+            df_src_item = df_src[df_src['item'] == item].drop(columns=['item'])
+            dict_df_src_item.update({
+                src + '_' + item: df_src_item
             })
 
     ####################################################################################################################
@@ -184,12 +198,12 @@ def make_page(info_comm):
         Output('tab1_area1_ddn2_empty', 'children'),
         Input('tab1_area1_ddn1_src', 'value'),
     )
-    def make_tab1_area1_ddn2_empty(val):
-        print('[INIT] make_tab1_area1_ddn2_empty : ', val, ctx.triggered_id)
-        if val is not None:
-            print(' > [IF] tab1_area1_ddn1_src : ', val, ctx.triggered_id)
+    def make_tab1_area1_ddn2_empty(src):
+        print('[INIT] make_tab1_area1_ddn2_empty : ', src, ctx.triggered_id)
+        if src is not None:
+            print(' > [IF] tab1_area1_ddn1_src : ', src, ctx.triggered_id)
 
-            list_item = list(info_comm[val].keys())
+            list_item = list(info_comm['box_code'][src].keys())
             ddn = dcc.Dropdown(
                 id='tab1_area1_ddn2_item', options=list_item, value=list_item[0],
                 style={'height': '40px', 'width': '140px'}
@@ -206,15 +220,15 @@ def make_page(info_comm):
         State('tab1_area1_ddn1_src', 'value'),
         State('tab1_area1_ddn2_item', 'value'),
     )
-    def make_tab1_area2_table1(btn, src, mat):
+    def make_tab1_area2_table1(btn, src, item):
         print('[INIT] make_tab1_area2_table1 : ', btn, ctx.triggered_id)
         if btn != 0:
             print(' > [IF] tab1_area1_btn1_loaddata : ', btn, ctx.triggered_id)
-            key = src + '_' + mat
+            key = src + '_' + item
             data_table = dash_table.DataTable(
                 id='tab1_area2_table1',
-                columns=[{'name': idx, 'id': idx, 'deletable': False} for idx in dict_src_item[key].columns],
-                data=dict_src_item[key].to_dict('records'),
+                columns=[{'name': idx, 'id': idx, 'deletable': False} for idx in dict_df_src_item[key].columns],
+                data=dict_df_src_item[key].to_dict('records'),
                 editable=True,
 
                 fixed_rows={'headers': True, 'data': 0},
@@ -235,7 +249,7 @@ def make_page(info_comm):
             )
             print(' > data_table :', data_table)
 
-            list_col = [col for col in dict_src_item[key].columns if col not in ['Date']]
+            list_col = [col for col in dict_df_src_item[key].columns if col not in ['Date']]
             ddn = dcc.Dropdown(
                 id='tab1_area1_ddn3_col', options=list_col, value=list_col[0],
                 style={'height': '40px', 'width': '140px'}
@@ -265,12 +279,12 @@ def make_page(info_comm):
         Output('tab1_area1_ddn5_empty', 'children'),
         Input('tab1_area1_ddn4_src', 'value'),
     )
-    def make_tab1_area1_ddn5_empty(val):
-        print('[INIT] make_tab1_area1_ddn5_empty : ', val, ctx.triggered_id)
-        if val is not None:
-            print(' > [IF] tab1_area1_ddn4_src : ', val, ctx.triggered_id)
+    def make_tab1_area1_ddn5_empty(src):
+        print('[INIT] make_tab1_area1_ddn5_empty : ', src, ctx.triggered_id)
+        if src is not None:
+            print(' > [IF] tab1_area1_ddn4_src : ', src, ctx.triggered_id)
 
-            list_item = list(info_comm[val].keys())
+            list_item = list(info_comm['box_code'][src].keys())
             ddn = dcc.Dropdown(
                 id='tab1_area1_ddn5_item', options=list_item, value=list_item[0],
                 style={'height': '40px', 'width': '140px'}
@@ -287,15 +301,15 @@ def make_page(info_comm):
         State('tab1_area1_ddn4_src', 'value'),
         State('tab1_area1_ddn5_item', 'value'),
     )
-    def make_tab1_area2_table2(btn, src, mat):
+    def make_tab1_area2_table2(btn, src, item):
         print('[INIT] make_tab1_area2_table2 : ', btn, ctx.triggered_id)
         if btn != 0:
             print(' > [IF] tab1_area1_btn3_loaddata : ', btn, ctx.triggered_id)
-            key = src + '_' + mat
+            key = src + '_' + item
             data_table = dash_table.DataTable(
                 id='tab1_area2_table2',
-                columns=[{'name': idx, 'id': idx, 'deletable': False} for idx in dict_src_item[key].columns],
-                data=dict_src_item[key].to_dict('records'),
+                columns=[{'name': idx, 'id': idx, 'deletable': False} for idx in dict_df_src_item[key].columns],
+                data=dict_df_src_item[key].to_dict('records'),
                 editable=True,
 
                 fixed_rows={'headers': True, 'data': 0},
@@ -316,7 +330,7 @@ def make_page(info_comm):
             )
             print(' > data_table :', data_table)
 
-            list_col = [col for col in dict_src_item[key].columns if col not in ['Date']]
+            list_col = [col for col in dict_df_src_item[key].columns if col not in ['Date']]
             ddn = dcc.Dropdown(
                 id='tab1_area1_ddn6_col', options=list_col, value=list_col[0],
                 style={'height': '40px', 'width': '140px'}
@@ -392,8 +406,9 @@ def make_page(info_comm):
 
             # graph 3
             df_comp_total = pd.DataFrame()
-            for item in info_comm[src1]:
-                df_tmp = pd.read_csv('output_data/df_{}_{}.csv'.format(src1, item)).set_index('Date')
+            for item in info_comm['box_code'][src1].keys():
+
+                df_tmp = dict_df_src_item[src1+'_'+item].set_index('Date')
 
                 base_num = df_tmp.loc[df_tmp.index[0], col1]
                 df_tmp_tr = df_tmp[[col1]].apply(lambda x: x / base_num - 1)

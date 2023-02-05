@@ -1,4 +1,4 @@
-from collector import get_data_from_src
+from collector import update_info_comm, get_data_from_src
 from visual import make_page
 
 
@@ -9,25 +9,21 @@ def main():
         'date_end': '2022-12-31',
         'path_output': 'output_data',
 
-        'index_stock': [
-            'KRX',
-            'NASDAQ',
-            # 'S&P500',
-        ],
-
-        'src_KRX': None,
-        'src_NASDAQ': None,
-
-        'src_material': {
-            'gold': 'LBMA/GOLD',
-            'silver': 'LBMA/SILVER',
-            'copper': 'CHRIS/CME_HG10',
-            'oil': 'OPEC/ORB',
+        'box_code': {
+            'KRX': None,
+            # 'NASDAQ': None,
+            'S&P500': None,
+            'Material': {
+                'gold': 'LBMA/GOLD',
+                'silver': 'LBMA/SILVER',
+                'copper': 'CHRIS/CME_HG10',
+                'oil': 'OPEC/ORB',
+            },
         },
-
     }
 
-    get_data_from_src(info_comm)
+    info_comm = update_info_comm(info_comm)
+    # get_data_from_src(info_comm)
     make_page(info_comm)
 
 

@@ -6,44 +6,62 @@ from PublicDataReader import Kbland
 quandl.ApiConfig.api_key = "h4m1wXxBGk62tH6XfeWa"
 
 
+def update_info_comm(info_comm):
+    print('[update_info_comm]')
+
+    for src in info_comm['box_code'].keys():
+        print('-' * 100 + '\n> source : {}'.format(src))
+
+        if info_comm['box_code'][src] is not None:
+            print('  >> [PASS] item already filled : {}'.format(info_comm['box_code'][src]))
+            continue
+
+        df_index = fdr.StockListing(src)
+        df_index.to_csv('{}/df_index_{}.csv'.format(info_comm['path_output'], src))
+        df_index = pd.read_csv('{}/df_index_{}.csv'.format(info_comm['path_output'], src))
+
+        if src in ['KRX']:
+            tr_value = 'Code'
+        elif src in ['NASDAQ', 'S&P500']:
+            tr_value = 'Symbol'
+        else:
+            continue
+
+        num_samples = 10
+        df_item_code_sample = df_index[['Name', tr_value]].set_index('Name', drop=True).iloc[0:num_samples]
+        dict_item_code_sample = df_item_code_sample.T.to_dict('records')[0]
+
+        info_comm['box_code'][src] = dict_item_code_sample
+        print(dict_item_code_sample)
+
+    return info_comm
+
+
 def get_data_from_src(info_comm):
     print('[get_data_from_src]')
 
-    for src in info_comm['index_stock']:
-        print(' > index_stock : {}'. format(src))
-        df_idx = fdr.StockListing(src)
-        df_idx.to_csv('{}/df_idx_{}.csv'.format(info_comm['path_output'], src))
-        df_item_code = pd.read_csv('{}/df_idx_{}.csv'.format(info_comm['path_output'], src))
-        
-        tr_value = None
-        if src in ['KRX']:
-            tr_value = 'Code'
-        if src in ['NASDAQ']:
-            tr_value = 'Symbol'
+    for src in info_comm['box_code'].keys():
+        print('-' * 100 + '\n> source : {}'.format(src))
 
-        num_samples = 10
-        df_item_code_sample = df_item_code[['Name', tr_value]].set_index('Name', drop=True).iloc[0:num_samples]
-        dict_item_code_sample = df_item_code_sample.T.to_dict('records')[0]
-        
-        src_name = 'src_' + src
-        info_comm[src_name] = dict_item_code_sample
-        print(dict_item_code_sample)
-
-    list_source = [src for src in info_comm.keys() if 'src' in src]
-    print(' > list_source : ', list_source)
-    for src in list_source:
-        print(' > src : {}'.format(src))
-        for item in info_comm[src]:
+        df_data_total = None
+        for item in info_comm['box_code'][src].keys():
             print('  >> item : {}'.format(item))
-            df_data = None
-            if src in ['src_material']:
-                df_data = quandl.get(
-                    info_comm[src][item], trim_start=info_comm['date_start'], trim_end=info_comm['date_end']
-                )
-            elif src in ['src_KRX', 'src_NASDAQ']:
-                df_data = fdr.DataReader(info_comm[src][item], info_comm['date_start'], info_comm['date_end'])
 
-            df_data.to_csv('{}/df_{}_{}.csv'.format(info_comm['path_output'], src, item))
+            df_data_tmp = None
+            if src in ['KRX', 'NASDAQ', 'S&P500']:
+                df_data_tmp = fdr.DataReader(info_comm['box_code'][src][item], info_comm['date_start'], info_comm['date_end'])
+            elif src in ['Material']:
+                df_data_tmp = quandl.get(
+                    info_comm['box_code'][src][item], trim_start=info_comm['date_start'], trim_end=info_comm['date_end']
+                )
+            df_data_tmp['item'] = item
+            df_data_total = pd.concat([df_data_total, df_data_tmp], axis=0)
+
+        print(df_data_total)
+        list_col = ['item'] + [col for col in df_data_total.columns if col not in ['item']]
+        print(list_col)
+        df_data_total = df_data_total[list_col]
+        df_data_total.to_csv('{}/df_src_{}.csv'.format(info_comm['path_output'], src))
 
 
 def get_kor_pdr():
