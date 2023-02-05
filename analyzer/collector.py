@@ -54,11 +54,11 @@ def get_data_from_src(info_comm):
                 df_data_tmp = quandl.get(
                     info_comm['box_code'][src][item], trim_start=info_comm['date_start'], trim_end=info_comm['date_end']
                 )
-            df_data_tmp['item'] = item
+            df_data_tmp['Item'] = item
             df_data_total = pd.concat([df_data_total, df_data_tmp], axis=0)
 
         print(df_data_total)
-        list_col = ['item'] + [col for col in df_data_total.columns if col not in ['item']]
+        list_col = ['Item'] + [col for col in df_data_total.columns if col not in ['Item']]
         print(list_col)
         df_data_total = df_data_total[list_col]
         df_data_total.to_csv('{}/df_src_{}.csv'.format(info_comm['path_output'], src))

@@ -6,19 +6,20 @@ def main():
 
     info_comm = {
         'date_start': '2022-01-01',
-        'date_end': '2022-12-31',
+        'date_end': '2023-02-05',
         'path_output': 'output_data',
 
         'box_code': {
             'KRX': None,
-            # 'NASDAQ': None,
+            'NASDAQ': None,
             'S&P500': None,
-            'Material': {
-                'gold': 'LBMA/GOLD',
-                'silver': 'LBMA/SILVER',
-                'copper': 'CHRIS/CME_HG10',
-                'oil': 'OPEC/ORB',
-            },
+
+            # 'Material': {
+            #     'gold': 'LBMA/GOLD',
+            #     'silver': 'LBMA/SILVER',
+            #     'copper': 'CHRIS/CME_HG10',
+            #     'oil': 'OPEC/ORB',
+            # },
         },
     }
 

@@ -2,7 +2,7 @@ import pandas as pd
 
 from dash import Dash, dash_table, html, dcc, Input, Output, State, ctx
 import plotly.express as px
-
+from datetime import datetime, date
 
 def make_page(info_comm):
     print('-' * 100 + '\n[make_page]')
@@ -25,7 +25,7 @@ def make_page(info_comm):
         # print(' >> list_item : {}'.format(list_item))
         for item in list_item:
             # print('   >>> item : {}'.format(item))
-            df_src_item = df_src[df_src['item'] == item].drop(columns=['item'])
+            df_src_item = df_src[df_src['Item'] == item]
             dict_df_src_item.update({
                 src + '_' + item: df_src_item
             })
@@ -81,7 +81,7 @@ def make_page(info_comm):
                 style={'height': '40px', 'width': '140px'})
         ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
         html.Div([
-            html.Div('item', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
+            html.Div('Item', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
             html.Div(id='tab1_area1_ddn2_empty'),
         ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
         html.Div([
@@ -109,7 +109,7 @@ def make_page(info_comm):
                 style={'height': '40px', 'width': '140px'})
         ], style={'display': 'inline-block', 'verticalAlign': 'bottom', 'margin-left': '120px'}),
         html.Div([
-            html.Div('item', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
+            html.Div('Item', style={'color': 'black', 'fontSize': 14, 'font_family': 'Malgun Gothic'}),
             html.Div(id='tab1_area1_ddn5_empty'),
         ], style={'display': 'inline-block', 'verticalAlign': 'bottom'}),
         html.Div([
@@ -154,9 +154,18 @@ def make_page(info_comm):
         # tab1_area3
         html.Div([
             html.Button(
-                'Show Graph', id='tab1_area3_btn1_showgraph', n_clicks=0,
+                'Show Graph',
+                id='tab1_area3_btn1_showgraph', n_clicks=0,
                 style={'height': '40px', 'width': '80px'}
-            )
+            ),
+            dcc.DatePickerSingle(
+                id='tab1_area3_date',
+                min_date_allowed=date(2021, 1, 1),
+                max_date_allowed=date(2023, 12, 31),
+                initial_visible_month=date(2023, 1, 1),
+                placeholder=datetime.now().strftime('%Y-%m-%d'),
+                display_format='YYYY-MM-DD',
+            ),
         ], style={'display': 'inline-block', 'verticalAlign': 'bottom', 'margin-top': '20px'}),
 
         # tab1_area4
@@ -249,7 +258,7 @@ def make_page(info_comm):
             )
             print(' > data_table :', data_table)
 
-            list_col = [col for col in dict_df_src_item[key].columns if col not in ['Date']]
+            list_col = [col for col in dict_df_src_item[key].columns if col not in ['Item', 'Date']]
             ddn = dcc.Dropdown(
                 id='tab1_area1_ddn3_col', options=list_col, value=list_col[0],
                 style={'height': '40px', 'width': '140px'}
@@ -330,7 +339,7 @@ def make_page(info_comm):
             )
             print(' > data_table :', data_table)
 
-            list_col = [col for col in dict_df_src_item[key].columns if col not in ['Date']]
+            list_col = [col for col in dict_df_src_item[key].columns if col not in ['Item', 'Date']]
             ddn = dcc.Dropdown(
                 id='tab1_area1_ddn6_col', options=list_col, value=list_col[0],
                 style={'height': '40px', 'width': '140px'}
@@ -367,13 +376,14 @@ def make_page(info_comm):
         State('tab1_area1_ddn2_item', 'value'),
         State('tab1_area1_ddn4_src', 'value'),
         State('tab1_area1_ddn5_item', 'value'),
+        State('tab1_area3_date', 'date'),
 
         State('tab1_area2_data_table1', 'data'),
         State('tab1_area1_ddn3_col', 'value'),
         State('tab1_area2_data_table2', 'data'),
         State('tab1_area1_ddn6_col', 'value'),
     )
-    def make_tab1_area4_graph(btn, src1, item1, src2, item2, dict_table1, col1, dict_table2, col2):
+    def make_tab1_area4_graph(btn, src1, item1, src2, item2, date_target, dict_table1, col1, dict_table2, col2):
         print('[INIT] make_tab1_area4_graph : ', btn, ctx.triggered_id)
         if btn != 0:
             print(' > [IF] tab1_area3_btn1_showgraph : ', btn, ctx.triggered_id)
@@ -384,13 +394,44 @@ def make_page(info_comm):
             df_1 = df_1.loc[list_same_date]
             df_2 = df_2.loc[list_same_date]
 
-            # graph 1: corr map
-            df_sum = pd.merge(df_1, df_2, on='Date', how='inner')
+            # graph 1
+            df_comp_all = pd.DataFrame()
+            for item in info_comm['box_code'][src1].keys():
+                df_tmp = dict_df_src_item[src1+'_'+item].set_index('Date')
+                base_num = df_tmp.loc[df_tmp.index[0], col1]
+                df_tmp_tr = df_tmp[[col1]].apply(lambda x: x / base_num - 1)
+                df_tmp_tr = df_tmp_tr.rename(columns={col1: item})
+                if len(df_comp_all.columns) == 0:
+                    df_comp_all = df_tmp_tr.copy()
+                else:
+                    df_comp_all = pd.merge(df_comp_all, df_tmp_tr, on='Date', how='outer')
+
+            df_comp_all = df_comp_all.reset_index()
+            lineplot_all = px.line(df_comp_all, x='Date', y=df_comp_all.columns, line_shape='spline', render_mode='svg')
+
+            # graph 2 : treemap
+            df_treemap = pd.DataFrame()
+            print(' > graph 2 treemap | date_target : {}'.format(date_target))
+            for item in info_comm['box_code'][src1].keys():
+                df_tmp = dict_df_src_item[src1+'_'+item]
+                df_tmp = df_tmp[df_tmp['Date'] == date_target]
+                df_treemap = pd.concat([df_treemap, df_tmp], axis=0)
+
+            treemap = px.treemap(
+                df_treemap,
+                path=[px.Constant(src1), 'Item'],
+                values='Volume',
+                color='Close',
+                hover_data=['Change']
+            )
+
+            # graph 3: corr map
+            df_sum = pd.merge(df_1.drop(columns=['Item']), df_2.drop(columns=['Item']), on='Date', how='inner')
             df_corr = df_sum.corr()
             heatmap = px.imshow(df_corr, color_continuous_scale='Blues', origin='lower')
             # fig = px.colors.sequential.swatches_continuous()
 
-            # graph 2: line graph
+            # graph 4: line graph
             base_num_1 = df_1.loc[df_1.index[0], col1]
             df_1_tr = df_1[[col1]].apply(lambda x: x/base_num_1-1)
             base_num_2 = df_2.loc[df_2.index[0], col2]
@@ -404,39 +445,13 @@ def make_page(info_comm):
 
             lineplot = px.line(df_comp, x='Date', y=df_comp.columns, line_shape='spline', render_mode='svg')
 
-            # graph 3
-            df_comp_total = pd.DataFrame()
-            for item in info_comm['box_code'][src1].keys():
-
-                df_tmp = dict_df_src_item[src1+'_'+item].set_index('Date')
-
-                base_num = df_tmp.loc[df_tmp.index[0], col1]
-                df_tmp_tr = df_tmp[[col1]].apply(lambda x: x / base_num - 1)
-                df_tmp_tr = df_tmp_tr.rename(columns={col1: item})
-                if len(df_comp_total.columns) == 0:
-                    df_comp_total = df_tmp_tr.copy()
-                else:
-                    df_comp_total = pd.merge(df_comp_total, df_tmp_tr, on='Date', how='outer')
-
-            df_comp_total = df_comp_total.reset_index()
-
-            lineplot_all = px.line(df_comp_total, x='Date', y=df_comp_total.columns, line_shape='spline', render_mode='svg')
-
-            # graph 4 : heatmap pop
-            df_pop = px.data.gapminder().query('year == 2007')
-            treemap = px.treemap(
-                df_pop,
-                path=[px.Constant('world'), 'continent', 'country'], values='pop',
-                color='lifeExp', hover_data=['iso_alpha']
-            )
-
         else:
-            heatmap = None
-            lineplot = None
             lineplot_all = None
             treemap = None
+            heatmap = None
+            lineplot = None
 
-        return heatmap, lineplot, lineplot_all, treemap
+        return lineplot_all, treemap, heatmap, lineplot
     
     ####################################################################################################################
 
