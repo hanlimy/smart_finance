@@ -6,8 +6,8 @@ from PublicDataReader import Kbland
 quandl.ApiConfig.api_key = "h4m1wXxBGk62tH6XfeWa"
 
 
-def update_info_comm(info_comm):
-    print('[update_info_comm]')
+def make_index_file_from_db(info_comm):
+    print('[make_index_file_from_db]')
 
     for src in info_comm['box_code'].keys():
         print('-' * 100 + '\n> source : {}'.format(src))
@@ -18,6 +18,14 @@ def update_info_comm(info_comm):
 
         df_index = fdr.StockListing(src)
         df_index.to_csv('{}/df_index_{}.csv'.format(info_comm['path_output'], src))
+
+
+def make_box_code_from_index_file(info_comm):
+    print('[get_code_from_file]')
+
+    for src in info_comm['box_code'].keys():
+        print('-' * 100 + '\n> source : {}'.format(src))
+
         df_index = pd.read_csv('{}/df_index_{}.csv'.format(info_comm['path_output'], src))
 
         if src in ['KRX']:
@@ -37,8 +45,8 @@ def update_info_comm(info_comm):
     return info_comm
 
 
-def get_data_from_src(info_comm):
-    print('[get_data_from_src]')
+def get_data_from_db(info_comm):
+    print('[get_data_from_db]')
 
     for src in info_comm['box_code'].keys():
         print('-' * 100 + '\n> source : {}'.format(src))

@@ -213,6 +213,34 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/predict_stock/output_data/1-01-01_df_krx.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/predict_stock/output_data/2-01-01_df_study_sampled.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/predict_stock/output_data/2-02-01_df_study_scaled.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/predict_stock/output_data/4-01-01_df_study_sampled_pred.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
       </map>
     </option>
   </component>

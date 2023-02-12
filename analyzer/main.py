@@ -1,12 +1,16 @@
-from collector import update_info_comm, get_data_from_src
+from collector import make_index_file_from_db, make_box_code_from_index_file, get_data_from_db
 from visual import make_page
+from datetime import datetime
 
 
 def main():
 
+    today = datetime.now().strftime('%Y-%m-%d')
+
     info_comm = {
+
         'date_start': '2022-01-01',
-        'date_end': '2023-02-05',
+        'date_end': today,
         'path_output': 'output_data',
 
         'box_code': {
@@ -23,8 +27,9 @@ def main():
         },
     }
 
-    info_comm = update_info_comm(info_comm)
-    # get_data_from_src(info_comm)
+    # make_index_file_from_db(info_comm)
+    # info_comm = make_box_code_from_index_file(info_comm)
+    # get_data_from_db(info_comm)
     make_page(info_comm)
 
 
