@@ -80,6 +80,27 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/analyzer/output_data/df_list_item_KRX.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/analyzer/output_data/df_list_item_NASDAQ.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/analyzer/output_data/df_list_item_S&amp;P500.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/analyzer/output_data/df_src_KRX.csv">
           <value>
             <Attribute>
@@ -207,6 +228,13 @@
           </value>
         </entry>
         <entry key="/analyzer/output_data/df_src_nasdaq_apple.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/analyzer/output_data/df_stock_price_KRX.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

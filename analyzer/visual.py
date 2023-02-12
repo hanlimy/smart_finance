@@ -1,4 +1,4 @@
-from collector import make_box_code_from_index_file
+from collector import make_code_stock_item
 
 import pandas as pd
 
@@ -10,21 +10,21 @@ from datetime import datetime, date
 def make_page(info_comm):
     print('-' * 100 + '\n[make_page]')
 
-    if list(info_comm['box_code'].values())[0] is None:
-        print(' > info_comm[box_code] is Null... updating from files')
-        info_comm = make_box_code_from_index_file(info_comm)
+    if list(info_comm['code_item_stock'].values())[0] is None:
+        print(' > info_comm[code_stock_item] is Null... updating from files')
+        info_comm = make_code_stock_item(info_comm)
 
     dict_df_src_item = dict()
 
-    list_source = [src for src in info_comm['box_code'].keys()]
+    list_source = [src for src in info_comm['code_item_stock'].keys()]
     print(' > list_source : {}'.format(list_source))
 
     for src in list_source:
         if src in ['Material']:
             continue
 
-        df_index = pd.read_csv('{}/df_index_{}.csv'.format(info_comm['path_output'], src))
-        df_src = pd.read_csv('{}/df_src_{}.csv'.format(info_comm['path_output'], src))
+        df_index = pd.read_csv('{}/df_list_item_{}.csv'.format(info_comm['path_output'], src))
+        df_src = pd.read_csv('{}/df_price_stock_{}.csv'.format(info_comm['path_output'], src))
 
         num_samples = 10
         list_item = df_index.loc[0:num_samples, 'Name'].values
@@ -221,7 +221,7 @@ def make_page(info_comm):
         if src is not None:
             print(' > [IF] tab1_area1_ddn1_src : ', src, ctx.triggered_id)
 
-            list_item = list(info_comm['box_code'][src].keys())
+            list_item = list(info_comm['code_item_stock'][src].keys())
             ddn = dcc.Dropdown(
                 id='tab1_area1_ddn2_item', options=list_item, value=list_item[0],
                 style={'height': '40px', 'width': '140px'}
@@ -282,21 +282,6 @@ def make_page(info_comm):
 
         return data_table, ddn
 
-    # @app.callback(
-    #     Output('tab1_area2_data_table1', 'data'),
-    #     Input('tab1_area1_btn2_savedata', 'n_clicks'),
-    #     State('tab1_area2_table1', 'data'),
-    # )
-    # def make_tab1_area2_data_table1(btn, data_table):
-    #     print('[INIT] make_tab1_area2_data_table1 : ', btn, ctx.triggered_id)
-    #     if btn != 0 and ctx.triggered_id == 'tab1_area1_btn2_savedata':
-    #         print(' > [IF] tab1_area1_btn2_savedata : ', btn, ctx.triggered_id)
-    #     else:
-    #         print(' > [ELSE] tab1_area1_btn2_savedata : ', btn, ctx.triggered_id)
-    #         data_table = None
-    #
-    #     return data_table
-
     @app.callback(
         Output('tab1_area1_ddn5_div', 'children'),
         Input('tab1_area1_ddn4_src', 'value'),
@@ -307,7 +292,7 @@ def make_page(info_comm):
         if src is not None:
             print(' > [IF] tab1_area1_ddn4_src : ', src, ctx.triggered_id)
 
-            list_item = list(info_comm['box_code'][src].keys())
+            list_item = list(info_comm['code_item_stock'][src].keys())
             ddn = dcc.Dropdown(
                 id='tab1_area1_ddn5_item', options=list_item, value=list_item[0],
                 style={'height': '40px', 'width': '140px'}
@@ -370,21 +355,6 @@ def make_page(info_comm):
 
         return data_table, ddn
 
-    # @app.callback(
-    #     Output('tab1_area2_data_table2', 'data'),
-    #     Input('tab1_area1_btn4_savedata', 'n_clicks'),
-    #     State('tab1_area2_table2', 'data'),
-    # )
-    # def make_tab1_area2_data_table2(btn, data_table):
-    #     print('[INIT] make_tab1_area2_data_table2 : ', btn, ctx.triggered_id)
-    #     if btn != 0 and ctx.triggered_id == 'tab1_area1_btn4_savedata':
-    #         print(' > [IF] tab1_area1_btn4_savedata : ', btn, ctx.triggered_id)
-    #     else:
-    #         print(' > [ELSE] tab1_area1_btn4_savedata : ', btn, ctx.triggered_id)
-    #         data_table = None
-    #
-    #     return data_table
-
     @app.callback(
         Output('tab1_area4_graph1', 'figure'),
         Output('tab1_area4_graph2', 'figure'),
@@ -398,10 +368,8 @@ def make_page(info_comm):
         State('tab1_area1_ddn5_item', 'value'),
         State('tab1_area3_date', 'date'),
 
-        # State('tab1_area2_data_table1', 'data'),
         State('tab1_area2_table1', 'data'),
         State('tab1_area1_ddn3_col', 'value'),
-        # State('tab1_area2_data_table2', 'data'),
         State('tab1_area2_table2', 'data'),
         State('tab1_area1_ddn6_col', 'value'),
     )
@@ -418,7 +386,7 @@ def make_page(info_comm):
 
             # graph 1
             df_comp_all = pd.DataFrame()
-            for item in info_comm['box_code'][src1].keys():
+            for item in info_comm['code_item_stock'][src1].keys():
                 df_tmp = dict_df_src_item[src1+'_'+item].set_index('Date')
                 base_num = df_tmp.loc[df_tmp.index[0], col1]
                 df_tmp_tr = df_tmp[[col1]].apply(lambda x: x / base_num - 1)
@@ -434,7 +402,7 @@ def make_page(info_comm):
             # graph 2 : treemap
             df_treemap = pd.DataFrame()
             print(' > graph 2 treemap | date_target : {}'.format(date_target))
-            for item in info_comm['box_code'][src1].keys():
+            for item in info_comm['code_item_stock'][src1].keys():
                 df_tmp = dict_df_src_item[src1+'_'+item]
                 df_tmp = df_tmp[df_tmp['Date'] == date_target]
                 df_treemap = pd.concat([df_treemap, df_tmp], axis=0)

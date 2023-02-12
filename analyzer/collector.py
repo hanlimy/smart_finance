@@ -6,27 +6,27 @@ from PublicDataReader import Kbland
 quandl.ApiConfig.api_key = "h4m1wXxBGk62tH6XfeWa"
 
 
-def make_index_file_from_db(info_comm):
-    print('[make_index_file_from_db]')
+def make_list_item_from_src(info_comm):
+    print('[make_list_item_from_src]')
 
-    for src in info_comm['box_code'].keys():
-        print('-' * 100 + '\n> source : {}'.format(src))
+    for src in info_comm['code_item_stock'].keys():
+        print(' > source : {}'.format(src))
 
-        if info_comm['box_code'][src] is not None:
-            print('  >> [PASS] item already filled : {}'.format(info_comm['box_code'][src]))
+        if info_comm['code_item_stock'][src] is not None:
+            print('  >> [PASS] item already filled : {}'.format(info_comm['code_item_stock'][src]))
             continue
 
         df_index = fdr.StockListing(src)
-        df_index.to_csv('{}/df_index_{}.csv'.format(info_comm['path_output'], src))
+        df_index.to_csv('{}/df_list_item_{}.csv'.format(info_comm['path_output'], src))
 
 
-def make_box_code_from_index_file(info_comm):
-    print('[get_code_from_file]')
+def make_code_stock_item(info_comm):
+    print('[make_code_stock_item]')
 
-    for src in info_comm['box_code'].keys():
+    for src in info_comm['code_item_stock'].keys():
         print('-' * 100 + '\n> source : {}'.format(src))
 
-        df_index = pd.read_csv('{}/df_index_{}.csv'.format(info_comm['path_output'], src))
+        df_index = pd.read_csv('{}/df_list_item_{}.csv'.format(info_comm['path_output'], src))
 
         if src in ['KRX']:
             tr_value = 'Code'
@@ -39,37 +39,44 @@ def make_box_code_from_index_file(info_comm):
         df_item_code_sample = df_index[['Name', tr_value]].set_index('Name', drop=True).iloc[0:num_samples]
         dict_item_code_sample = df_item_code_sample.T.to_dict('records')[0]
 
-        info_comm['box_code'][src] = dict_item_code_sample
+        info_comm['code_item_stock'][src] = dict_item_code_sample
         print(dict_item_code_sample)
 
     return info_comm
 
 
-def get_data_from_db(info_comm):
-    print('[get_data_from_db]')
+def get_price_stock(info_comm):
+    print('[get_price_stock]')
 
-    for src in info_comm['box_code'].keys():
+    for src in info_comm['code_item_stock'].keys():
         print('-' * 100 + '\n> source : {}'.format(src))
 
         df_data_total = None
-        for item in info_comm['box_code'][src].keys():
+        for item in info_comm['code_item_stock'][src].keys():
             print('  >> item : {}'.format(item))
 
             df_data_tmp = None
             if src in ['KRX', 'NASDAQ', 'S&P500']:
-                df_data_tmp = fdr.DataReader(info_comm['box_code'][src][item], info_comm['date_start'], info_comm['date_end'])
+                df_data_tmp = fdr.DataReader(
+                    info_comm['code_item_stock'][src][item], info_comm['date_start'], info_comm['date_end']
+                )
             elif src in ['Material']:
                 df_data_tmp = quandl.get(
-                    info_comm['box_code'][src][item], trim_start=info_comm['date_start'], trim_end=info_comm['date_end']
+                    info_comm['code_item_stock'][src][item], trim_start=info_comm['date_start'], trim_end=info_comm['date_end']
                 )
             df_data_tmp['Item'] = item
             df_data_total = pd.concat([df_data_total, df_data_tmp], axis=0)
-
         print(df_data_total)
+
         list_col = ['Item'] + [col for col in df_data_total.columns if col not in ['Item']]
         print(list_col)
+
         df_data_total = df_data_total[list_col]
-        df_data_total.to_csv('{}/df_src_{}.csv'.format(info_comm['path_output'], src))
+        df_data_total.to_csv('{}/df_price_stock_{}.csv'.format(info_comm['path_output'], src))
+
+
+def get_exchange_rate(info_comm):
+    print('[get_exchange_rate]')
 
 
 def get_kor_pdr():

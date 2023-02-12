@@ -1,4 +1,4 @@
-from collector import make_index_file_from_db, make_box_code_from_index_file, get_data_from_db
+from collector import make_list_item_from_src, make_code_stock_item, get_price_stock
 from visual import make_page
 from datetime import datetime
 
@@ -13,8 +13,9 @@ def main():
         'date_end': today,
         'path_output': 'output_data',
 
-        'box_code': {
+        'code_item_stock': {
             'KRX': None,
+
             'NASDAQ': None,
             'S&P500': None,
 
@@ -27,9 +28,9 @@ def main():
         },
     }
 
-    # make_index_file_from_db(info_comm)
-    # info_comm = make_box_code_from_index_file(info_comm)
-    # get_data_from_db(info_comm)
+    make_list_item_from_src(info_comm)
+    info_comm = make_code_stock_item(info_comm)
+    get_price_stock(info_comm)
     make_page(info_comm)
 
 
