@@ -1,29 +1,34 @@
 import pandas as pd
+from tabulate import tabulate
+
+from PublicDataReader import Kbland
+from bs4 import BeautifulSoup
+
 import quandl
 import FinanceDataReader as fdr
-from PublicDataReader import Kbland
+import requests
 
 quandl.ApiConfig.api_key = "h4m1wXxBGk62tH6XfeWa"
 
 
 def make_list_item_from_src(info_comm):
-    print('[make_list_item_from_src]')
+    print('-' * 100 + '\n[make_list_item_from_src]')
 
-    for src in info_comm['code_item_stock'].keys():
+    for src in info_comm['item_code'].keys():
         print(' > source : {}'.format(src))
 
-        if info_comm['code_item_stock'][src] is not None:
-            print('  >> [PASS] item already filled : {}'.format(info_comm['code_item_stock'][src]))
+        if info_comm['item_code'][src] is not None:
+            print('  >> [PASS] item already filled : {}'.format(info_comm['item_code'][src]))
             continue
 
         df_index = fdr.StockListing(src)
         df_index.to_csv('{}/df_list_item_{}.csv'.format(info_comm['path_output'], src))
 
 
-def make_code_stock_item(info_comm):
-    print('[make_code_stock_item]')
+def make_stock_item_code(info_comm):
+    print('-' * 100 + '\n[make_stock_item_code]')
 
-    for src in info_comm['code_item_stock'].keys():
+    for src in info_comm['item_code'].keys():
         print('-' * 100 + '\n> source : {}'.format(src))
 
         df_index = pd.read_csv('{}/df_list_item_{}.csv'.format(info_comm['path_output'], src))
@@ -35,34 +40,112 @@ def make_code_stock_item(info_comm):
         else:
             continue
 
-        num_samples = 10
-        df_item_code_sample = df_index[['Name', tr_value]].set_index('Name', drop=True).iloc[0:num_samples]
-        dict_item_code_sample = df_item_code_sample.T.to_dict('records')[0]
+        df_item_code = df_index[['Name', tr_value]].set_index('Name', drop=True)
+        dict_item_code = df_item_code.T.to_dict('records')[0]
 
-        info_comm['code_item_stock'][src] = dict_item_code_sample
-        print(dict_item_code_sample)
+        info_comm['item_code'][src] = dict_item_code
+        print(dict_item_code)
 
     return info_comm
 
 
-def get_price_stock(info_comm):
-    print('[get_price_stock]')
+def crawling_ref():
+    code = '089530'  # 에이티세미콘
+    url = "https://navercomp.wisereport.co.kr/v2/company/c1010001.aspx?cmp_cd={}".format(code)
+    print(' > url : ', url)
 
-    for src in info_comm['code_item_stock'].keys():
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67 Safari/537.36'}
+    req = requests.get(url, headers=headers).content
+
+    # 한글 깨짐 방지 decode
+    # soup = BeautifulSoup(req.decode('euc-kr', 'replace'), 'html.parser'))
+    soup = BeautifulSoup(req.decode('utf-8', 'replace'), 'html.parser')
+
+    print('-' * 100)
+    print(soup.title)
+    print(soup.find('title'))
+    print(soup.a)
+    print(soup.find('a'))
+
+    print('-' * 100)
+    print(soup.a.attrs)
+    print(soup.a.attrs['href'])
+
+    print('-' * 100)
+    print(soup.select_one('title'))
+    print(soup.select_one('title').get_text())
+    print(soup.select_one('title').string.replace(' ', ''))
+
+    print('-' * 100)
+    # # print(soup.find_all('a', attrs={'class': 'cmp-table'}))
+    print(soup.select_one('td.line'))  # tag.class > tag.class > tag.class ...
+    print(soup.select_one('#contentWrap'))  # id > tag.class ...
+    print(soup.select('td[title="지피클럽"]'))  # 'tag[type="value"]' > '
+
+
+def get_naver_finance_basic(info_comm):
+    print('-' * 100 + '\n[get_naver_finance_basic]')
+    list_item_target = list(info_comm['item_code']['KRX'].keys())[:10]
+    list_item_target += ['에이티세미콘']
+
+    print(f'list_item_target : {list_item_target}')
+
+    df_fin_basic = pd.DataFrame(columns=['code', 'bps', 'per', 'area_per', 'pbr', 'cash_ratio', 'note'])
+
+    for item in list_item_target:
+
+        code = info_comm['item_code']['KRX'][item]
+
+        # url = f'https://finance.naver.com/item/main.nhn?code={code}'
+        # response = requests.get(url)
+        # soup = BeautifulSoup(response.text, 'html.parser')
+        # per = soup.select_one('em[id="_per"]').get_text()
+        # pbr = soup.select_one('em[id="_pbr"]').get_text()
+
+
+        url = "https://navercomp.wisereport.co.kr/v2/company/c1010001.aspx?cmp_cd={}".format(code)
+        req = requests.get(url).content
+        soup = BeautifulSoup(req.decode('utf-8', 'replace'), 'html.parser')
+
+        text_info_base = 'td[class="cmp-table-cell td0301"] > dl > dt[class="line-left"] > b[class="num"]'
+        bps = soup.select(text_info_base)[0].get_text()
+        per = soup.select(text_info_base)[1].get_text()
+        area_per = soup.select(text_info_base)[2].get_text()
+        pbr = soup.select(text_info_base)[3].get_text()
+        cash_ratio = soup.select(text_info_base)[4].get_text()
+
+        df_fin_basic.loc[item] = [code, bps, per, area_per, pbr, cash_ratio, None]
+
+        text_target = soup.select('td[title="지피클럽"]') # 'tag[type="value"]' > '
+        if len(text_target):
+            print(f'  >> text_target 지피클럽 : ', text_target)
+            df_fin_basic.at[item, 'note'] = '지피클럽'
+
+    df_fin_basic.to_csv('{}/df_fin_basic.csv'.format(info_comm['path_output']))
+
+    # tablefmt='fancy_grid', 'psql'
+    print(tabulate(df_fin_basic, headers='keys', tablefmt='psql', showindex=True, numalign='right'))
+
+
+def get_price_stock(info_comm):
+    print('-' * 100 + '\n[get_price_stock]')
+
+    for src in info_comm['item_code'].keys():
         print('-' * 100 + '\n> source : {}'.format(src))
 
         df_data_total = None
-        for item in info_comm['code_item_stock'][src].keys():
+        for item in info_comm['item_code'][src].keys():
             print('  >> item : {}'.format(item))
 
             df_data_tmp = None
             if src in ['KRX', 'NASDAQ', 'S&P500']:
                 df_data_tmp = fdr.DataReader(
-                    info_comm['code_item_stock'][src][item], info_comm['date_start'], info_comm['date_end']
+                    info_comm['item_code'][src][item], info_comm['date_start'], info_comm['date_end']
                 )
             elif src in ['Material']:
                 df_data_tmp = quandl.get(
-                    info_comm['code_item_stock'][src][item], trim_start=info_comm['date_start'], trim_end=info_comm['date_end']
+                    info_comm['item_code'][src][item], trim_start=info_comm['date_start'], trim_end=info_comm['date_end']
                 )
             df_data_tmp['Item'] = item
             df_data_total = pd.concat([df_data_total, df_data_tmp], axis=0)
@@ -76,11 +159,11 @@ def get_price_stock(info_comm):
 
 
 def get_exchange_rate(info_comm):
-    print('[get_exchange_rate]')
+    print('-' * 100 + '\n[get_exchange_rate]')
 
 
 def get_kor_pdr():
-    print('[get_kor_pdr]')
+    print('-' * 100 + '\n[get_kor_pdr]')
 
     api = Kbland()
     params = {

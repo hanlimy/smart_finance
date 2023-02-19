@@ -1,4 +1,6 @@
-from collector import make_list_item_from_src, make_code_stock_item, get_price_stock
+from collector import \
+    make_list_item_from_src, make_stock_item_code, \
+    get_price_stock, get_naver_finance_basic
 from visual import make_page
 from datetime import datetime
 
@@ -13,25 +15,19 @@ def main():
         'date_end': today,
         'path_output': 'output_data',
 
-        'code_item_stock': {
+        'item_code': {
             'KRX': None,
-
-            'NASDAQ': None,
-            'S&P500': None,
-
-            # 'Material': {
-            #     'gold': 'LBMA/GOLD',
-            #     'silver': 'LBMA/SILVER',
-            #     'copper': 'CHRIS/CME_HG10',
-            #     'oil': 'OPEC/ORB',
-            # },
+            # 'NASDAQ': None,
+            # 'S&P500': None,
         },
     }
 
-    make_list_item_from_src(info_comm)
-    info_comm = make_code_stock_item(info_comm)
-    get_price_stock(info_comm)
-    make_page(info_comm)
+    # make_list_item_from_src(info_comm)
+    info_comm = make_stock_item_code(info_comm)
+    get_naver_finance_basic(info_comm)
+
+    # get_price_stock(info_comm)
+    # make_page(info_comm)
 
 
 if __name__ == '__main__':

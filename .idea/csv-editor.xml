@@ -3,6 +3,13 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
+        <entry key="/analyzer/output_data/1-01-01_df_krx.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/analyzer/output_data/df_KRX_items.csv">
           <value>
             <Attribute>
@@ -25,6 +32,13 @@
           </value>
         </entry>
         <entry key="/analyzer/output_data/df_S&amp;P500_items.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/analyzer/output_data/df_fin_basic.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
@@ -95,6 +109,20 @@
           </value>
         </entry>
         <entry key="/analyzer/output_data/df_list_item_S&amp;P500.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/analyzer/output_data/df_price_stock_NASDAQ.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/analyzer/output_data/df_price_stock_S&amp;P500.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

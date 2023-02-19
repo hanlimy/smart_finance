@@ -1,4 +1,4 @@
-from collector import make_code_stock_item
+from collector import make_stock_item_code
 
 import pandas as pd
 
@@ -10,13 +10,13 @@ from datetime import datetime, date
 def make_page(info_comm):
     print('-' * 100 + '\n[make_page]')
 
-    if list(info_comm['code_item_stock'].values())[0] is None:
+    if list(info_comm['item_code'].values())[0] is None:
         print(' > info_comm[code_stock_item] is Null... updating from files')
-        info_comm = make_code_stock_item(info_comm)
+        info_comm = make_stock_item_code(info_comm)
 
     dict_df_src_item = dict()
 
-    list_source = [src for src in info_comm['code_item_stock'].keys()]
+    list_source = [src for src in info_comm['item_code'].keys()]
     print(' > list_source : {}'.format(list_source))
 
     for src in list_source:
@@ -221,7 +221,7 @@ def make_page(info_comm):
         if src is not None:
             print(' > [IF] tab1_area1_ddn1_src : ', src, ctx.triggered_id)
 
-            list_item = list(info_comm['code_item_stock'][src].keys())
+            list_item = list(info_comm['item_code'][src].keys())
             ddn = dcc.Dropdown(
                 id='tab1_area1_ddn2_item', options=list_item, value=list_item[0],
                 style={'height': '40px', 'width': '140px'}
@@ -292,7 +292,7 @@ def make_page(info_comm):
         if src is not None:
             print(' > [IF] tab1_area1_ddn4_src : ', src, ctx.triggered_id)
 
-            list_item = list(info_comm['code_item_stock'][src].keys())
+            list_item = list(info_comm['item_code'][src].keys())
             ddn = dcc.Dropdown(
                 id='tab1_area1_ddn5_item', options=list_item, value=list_item[0],
                 style={'height': '40px', 'width': '140px'}
@@ -386,7 +386,7 @@ def make_page(info_comm):
 
             # graph 1
             df_comp_all = pd.DataFrame()
-            for item in info_comm['code_item_stock'][src1].keys():
+            for item in info_comm['item_code'][src1].keys():
                 df_tmp = dict_df_src_item[src1+'_'+item].set_index('Date')
                 base_num = df_tmp.loc[df_tmp.index[0], col1]
                 df_tmp_tr = df_tmp[[col1]].apply(lambda x: x / base_num - 1)
@@ -402,7 +402,7 @@ def make_page(info_comm):
             # graph 2 : treemap
             df_treemap = pd.DataFrame()
             print(' > graph 2 treemap | date_target : {}'.format(date_target))
-            for item in info_comm['code_item_stock'][src1].keys():
+            for item in info_comm['item_code'][src1].keys():
                 df_tmp = dict_df_src_item[src1+'_'+item]
                 df_tmp = df_tmp[df_tmp['Date'] == date_target]
                 df_treemap = pd.concat([df_treemap, df_tmp], axis=0)
