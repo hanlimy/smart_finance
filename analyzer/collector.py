@@ -101,13 +101,16 @@ def get_naver_finance_basic(info_comm):
         url = "https://navercomp.wisereport.co.kr/v2/company/c1010001.aspx?cmp_cd={}".format(code)
         req = requests.get(url).content
         soup = BeautifulSoup(req.decode('utf-8', 'replace'), 'html.parser')
+        if not len(soup):
+            print(f'  >> len(soup) is ZERO')
 
-        text_info_base = 'td[class="cmp-table-cell td0301"] > dl > dt[class="line-left"] > b[class="num"]'
-        bps = soup.select(text_info_base)[0].get_text()
-        per = soup.select(text_info_base)[1].get_text()
-        area_per = soup.select(text_info_base)[2].get_text()
-        pbr = soup.select(text_info_base)[3].get_text()
-        cash_ratio = soup.select(text_info_base)[4].get_text()
+        text_cond = 'td[class="cmp-table-cell td0301"] > dl > dt[class="line-left"] > b[class="num"]'
+        basic_info_item = soup.select(text_cond)
+        bps = basic_info_item[0].get_text() if len(basic_info_item) else None
+        per = basic_info_item[1].get_text() if len(basic_info_item) else None
+        area_per = basic_info_item[2].get_text() if len(basic_info_item) else None
+        pbr = basic_info_item[3].get_text() if len(basic_info_item) else None
+        cash_ratio = basic_info_item[4].get_text() if len(basic_info_item) else None
 
         df_fin_basic.loc[item] = [code, bps, per, area_per, pbr, cash_ratio, None]
 
