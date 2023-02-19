@@ -92,8 +92,3 @@ def get_naver_finance_coinfo(code):
     # 'tag[type="value"]' > 'tag[type="value"]'
     print(soup.select('td[class="cmp-table-cell td0301"] > dl > dt[class="line-left"] > b[class="num"]')[0].get_text())
 
-
-
-
-code = '089530' # 에이티세미콘
-get_naver_finance_coinfo(code)

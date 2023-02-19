@@ -1,6 +1,7 @@
 from collector import \
     make_list_item_from_src, make_stock_item_code, \
     get_price_stock, get_naver_finance_basic
+
 from visual import make_page
 from datetime import datetime
 

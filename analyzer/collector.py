@@ -86,23 +86,17 @@ def crawling_ref():
 
 def get_naver_finance_basic(info_comm):
     print('-' * 100 + '\n[get_naver_finance_basic]')
-    list_item_target = list(info_comm['item_code']['KRX'].keys())[:10]
-    list_item_target += ['에이티세미콘']
+    # list_item_target = list(info_comm['item_code']['KRX'].keys())[:10]
+    # list_item_target += ['에이티세미콘']
 
+    list_item_target = list(info_comm['item_code']['KRX'].keys())
     print(f'list_item_target : {list_item_target}')
 
     df_fin_basic = pd.DataFrame(columns=['code', 'bps', 'per', 'area_per', 'pbr', 'cash_ratio', 'note'])
 
-    for item in list_item_target:
-
+    for idx, item in enumerate(list_item_target):
+        print(f' > item : {item} <{idx}/{len(list_item_target)}>')
         code = info_comm['item_code']['KRX'][item]
-
-        # url = f'https://finance.naver.com/item/main.nhn?code={code}'
-        # response = requests.get(url)
-        # soup = BeautifulSoup(response.text, 'html.parser')
-        # per = soup.select_one('em[id="_per"]').get_text()
-        # pbr = soup.select_one('em[id="_pbr"]').get_text()
-
 
         url = "https://navercomp.wisereport.co.kr/v2/company/c1010001.aspx?cmp_cd={}".format(code)
         req = requests.get(url).content
@@ -117,7 +111,7 @@ def get_naver_finance_basic(info_comm):
 
         df_fin_basic.loc[item] = [code, bps, per, area_per, pbr, cash_ratio, None]
 
-        text_target = soup.select('td[title="지피클럽"]') # 'tag[type="value"]' > '
+        text_target = soup.select('td[title="지피클럽"]')
         if len(text_target):
             print(f'  >> text_target 지피클럽 : ', text_target)
             df_fin_basic.at[item, 'note'] = '지피클럽'
