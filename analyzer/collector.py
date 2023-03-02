@@ -87,15 +87,16 @@ def crawling_ref():
 def get_naver_finance_basic(info_comm):
     print('-' * 100 + '\n[get_naver_finance_basic]')
     # list_item_target = list(info_comm['item_code']['KRX'].keys())[:10]
-    # list_item_target += ['에이티세미콘']
 
     list_item_target = list(info_comm['item_code']['KRX'].keys())
     print(f'list_item_target : {list_item_target}')
 
-    df_fin_basic = pd.DataFrame(columns=['code', 'bps', 'per', 'area_per', 'pbr', 'cash_ratio', 'note'])
+    # list_item_target = ['에이티세미콘']
+
+    df_fin_basic = pd.DataFrame(columns=['code', 'eps', 'bps', 'per', 'area_per', 'pbr', 'cash_ratio', 'owner'])
 
     for idx, item in enumerate(list_item_target):
-        print(f' > item : {item} <{idx}/{len(list_item_target)}>')
+        print(f' > item : {item} <{idx+1}/{len(list_item_target)}>')
         code = info_comm['item_code']['KRX'][item]
 
         url = "https://navercomp.wisereport.co.kr/v2/company/c1010001.aspx?cmp_cd={}".format(code)
@@ -104,20 +105,25 @@ def get_naver_finance_basic(info_comm):
         if not len(soup):
             print(f'  >> len(soup) is ZERO')
 
-        text_cond = 'td[class="cmp-table-cell td0301"] > dl > dt[class="line-left"] > b[class="num"]'
-        basic_info_item = soup.select(text_cond)
-        bps = basic_info_item[0].get_text() if len(basic_info_item) else None
-        per = basic_info_item[1].get_text() if len(basic_info_item) else None
-        area_per = basic_info_item[2].get_text() if len(basic_info_item) else None
-        pbr = basic_info_item[3].get_text() if len(basic_info_item) else None
-        cash_ratio = basic_info_item[4].get_text() if len(basic_info_item) else None
+        text_cond_1 = 'td[class="cmp-table-cell td0301"] > dl > dt > b[class="num"]'
+        basic_info_item_1 = soup.select(text_cond_1)
+        eps = basic_info_item_1[0].get_text() if len(basic_info_item_1) else None
+        bps = basic_info_item_1[1].get_text() if len(basic_info_item_1) else None
+        per = basic_info_item_1[2].get_text() if len(basic_info_item_1) else None
+        area_per = basic_info_item_1[3].get_text() if len(basic_info_item_1) else None
+        pbr = basic_info_item_1[4].get_text() if len(basic_info_item_1) else None
+        cash_ratio = basic_info_item_1[5].get_text() if len(basic_info_item_1) else None
 
-        df_fin_basic.loc[item] = [code, bps, per, area_per, pbr, cash_ratio, None]
+        df_fin_basic.loc[item] = [code, eps, bps, per, area_per, pbr, cash_ratio, None]
 
-        text_target = soup.select('td[title="지피클럽"]')
-        if len(text_target):
-            print(f'  >> text_target 지피클럽 : ', text_target)
-            df_fin_basic.at[item, 'note'] = '지피클럽'
+        df_fin_basic.at[item, 'owner'] = []
+
+        list_stock_owner = ["지피클럽", "더에이치테크", "이재용", "자사주"]
+        for text_owner in list_stock_owner:
+            text_target = soup.select(f'td[title={text_owner}]')
+            if len(text_target):
+                print(f'  >> text_target  : ', text_target)
+                df_fin_basic.at[item, 'owner'] += [text_owner]
 
     df_fin_basic.to_csv('{}/df_fin_basic.csv'.format(info_comm['path_output']))
 
