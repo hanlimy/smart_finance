@@ -1,6 +1,6 @@
 import pandas as pd
 
-from sklearn.metrics import mean_squared_error, accuracy_score, precision_score, recall_score, r2_score
+from sklearn.metrics import r2_score
 
 
 def simple_prediction(info_lv2, smart_stock, box_study_sampled, box_study_scaled):

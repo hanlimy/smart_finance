@@ -3,77 +3,14 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
-        <entry key="/analyzer/output_data/df_fin_basic.csv">
+        <entry key="/stock_pred/output_data/1-01-01_df_krx.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
             </Attribute>
           </value>
         </entry>
-        <entry key="/analyzer/output_data/df_list_item_KRX.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/analyzer/output_data/df_list_item_NASDAQ.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/analyzer/output_data/df_list_item_S&amp;P500.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/analyzer/output_data/df_price_stock_KRX.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/analyzer/output_data/df_price_stock_NASDAQ.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/analyzer/output_data/df_price_stock_S&amp;P500.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/predict_stock/output_data/1-01-01_df_krx.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/predict_stock/output_data/2-01-01_df_study_sampled.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/predict_stock/output_data/2-02-01_df_study_scaled.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/predict_stock/output_data/4-01-01_df_study_sampled_pred.csv">
+        <entry key="/stock_pred/output_data/1-01-99_price_company.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

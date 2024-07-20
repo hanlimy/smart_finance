@@ -1,4 +1,4 @@
-# import tensorflow as tf
+import tensorflow as tf
 
 # gpu running is ok spec
 # python 3.8.15

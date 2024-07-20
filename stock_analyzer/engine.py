@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pandas as pd
 from tabulate import tabulate
 
@@ -8,11 +10,20 @@ import quandl
 import FinanceDataReader as fdr
 import requests
 
+
 quandl.ApiConfig.api_key = "h4m1wXxBGk62tH6XfeWa"
 
 
+def get_nowtime():
+    date_today = datetime.now().strftime('%Y-%m-%d')
+
+    return date_today
+
 def make_list_item_from_src(info_comm):
-    print('-' * 100 + '\n[make_list_item_from_src]')
+
+    time_before = get_nowtime()
+    print('-' * 100)
+    print('[make_list_item_from_src]-START()')
 
     for src in info_comm['item_code'].keys():
         print(' > source : {}'.format(src))
@@ -24,12 +35,15 @@ def make_list_item_from_src(info_comm):
         df_index = fdr.StockListing(src)
         df_index.to_csv('{}/df_list_item_{}.csv'.format(info_comm['path_output'], src))
 
+    print('[make_list_item_from_src]-END()')
+    
 
 def make_stock_item_code(info_comm):
-    print('-' * 100 + '\n[make_stock_item_code]')
+    print('-' * 100)
+    print('[make_stock_item_code]-START()')
 
     for src in info_comm['item_code'].keys():
-        print('-' * 100 + '\n> source : {}'.format(src))
+        print('> source : {}'.format(src))
 
         df_index = pd.read_csv('{}/df_list_item_{}.csv'.format(info_comm['path_output'], src))
 
@@ -85,7 +99,7 @@ def crawling_ref():
 
 
 def get_naver_finance_basic(info_comm):
-    print('-' * 100 + '\n[get_naver_finance_basic]')
+    print('[get_naver_finance_basic]')
     # list_item_target = list(info_comm['item_code']['KRX'].keys())[:10]
 
     list_item_target = list(info_comm['item_code']['KRX'].keys())
@@ -132,10 +146,10 @@ def get_naver_finance_basic(info_comm):
 
 
 def get_price_stock(info_comm):
-    print('-' * 100 + '\n[get_price_stock]')
+    print('[get_price_stock]')
 
     for src in info_comm['item_code'].keys():
-        print('-' * 100 + '\n> source : {}'.format(src))
+        print('> source : {}'.format(src))
 
         df_data_total = None
         for item in info_comm['item_code'][src].keys():
@@ -162,11 +176,11 @@ def get_price_stock(info_comm):
 
 
 def get_exchange_rate(info_comm):
-    print('-' * 100 + '\n[get_exchange_rate]')
+    print('[get_exchange_rate]')
 
 
 def get_kor_pdr():
-    print('-' * 100 + '\n[get_kor_pdr]')
+    print('[get_kor_pdr]')
 
     api = Kbland()
     params = {
