@@ -1,4 +1,4 @@
-from datetime import datetime
+from info_global import get_now
 
 import pandas as pd
 from tabulate import tabulate
@@ -14,38 +14,35 @@ import requests
 quandl.ApiConfig.api_key = "h4m1wXxBGk62tH6XfeWa"
 
 
-def get_nowtime():
-    date_today = datetime.now().strftime('%Y-%m-%d')
-
-    return date_today
-
 def make_list_item_from_src(info_comm):
-
-    time_before = get_nowtime()
+    time_before = get_now('TIME')
     print('-' * 100)
-    print('[make_list_item_from_src]-START()')
+    print('[make_list_item_from_src]-START() <{}>'.format(get_now('TIME')))
 
-    for src in info_comm['item_code'].keys():
+    for src in info_comm['list_item_src']:
         print(' > source : {}'.format(src))
-
-        if info_comm['item_code'][src] is not None:
-            print('  >> [PASS] item already filled : {}'.format(info_comm['item_code'][src]))
-            continue
-
         df_index = fdr.StockListing(src)
         df_index.to_csv('{}/df_list_item_{}.csv'.format(info_comm['path_output'], src))
 
-    print('[make_list_item_from_src]-END()')
-    
+    print('[make_list_item_from_src]-END() <{} | {}>'.format(time_before, get_now('TIME')))
+
 
 def make_stock_item_code(info_comm):
+    time_before = get_now('TIME')
     print('-' * 100)
-    print('[make_stock_item_code]-START()')
+    print('[make_stock_item_code]-START() <{}>'.format(get_now('TIME')))
 
-    for src in info_comm['item_code'].keys():
-        print('> source : {}'.format(src))
+    dict_item_code = dict()
 
-        df_index = pd.read_csv('{}/df_list_item_{}.csv'.format(info_comm['path_output'], src))
+    for src in info_comm['list_item_src']:
+        print(' > source : {}'.format(src))
+
+        df_index = pd.read_csv('{}/df_list_item_{}.csv'.format(info_comm['path_output'], src), index_col=0)
+
+        list_col_sort_type = ['Stocks']
+        print(' > list_col_sort_type :', list_col_sort_type)
+        df_index = df_index.sort_values(list_col_sort_type, ascending=False)
+        df_index.to_csv('{}/df_list_item_sorted_{}.csv'.format(info_comm['path_output'], src))
 
         if src in ['KRX']:
             tr_value = 'Code'
@@ -55,15 +52,20 @@ def make_stock_item_code(info_comm):
             continue
 
         df_item_code = df_index[['Name', tr_value]].set_index('Name', drop=True)
-        dict_item_code = df_item_code.T.to_dict('records')[0]
+        dict_item_code[src] = df_item_code.T.to_dict('records')[0]
 
-        info_comm['item_code'][src] = dict_item_code
-        print(dict_item_code)
+        print(' > dict_item_code[{}]: {}'.format(src, dict_item_code))
 
-    return info_comm
+    info_comm['dict_item_code'] = dict_item_code
 
+    print('[make_stock_item_code]-END() <{} | {}>'.format(time_before, get_now('TIME')))
+    
 
-def crawling_ref():
+def crawling_ref(info_comm):
+    time_before = get_now('TIME')
+    print('-' * 100)
+    print('[crawling_ref]-START() <{}>'.format(get_now('TIME')))
+
     code = '089530'  # 에이티세미콘
     url = "https://navercomp.wisereport.co.kr/v2/company/c1010001.aspx?cmp_cd={}".format(code)
     print(' > url : ', url)
@@ -97,12 +99,18 @@ def crawling_ref():
     print(soup.select_one('#contentWrap'))  # id > tag.class ...
     print(soup.select('td[title="지피클럽"]'))  # 'tag[type="value"]' > '
 
+    print('[crawling_ref]-END() <{} | {}>'.format(time_before, get_now('TIME')))
+
 
 def get_naver_finance_basic(info_comm):
-    print('[get_naver_finance_basic]')
+    time_before = get_now('TIME')
+    print('-' * 100)
+    print('[get_naver_finance_basic]-START() <{}>'.format(get_now('TIME')))
+
     # list_item_target = list(info_comm['item_code']['KRX'].keys())[:10]
 
-    list_item_target = list(info_comm['item_code']['KRX'].keys())
+    dict_item_code = info_comm['dict_item_code']
+    list_item_target = list(dict_item_code['KRX'].keys())
     print(f'list_item_target : {list_item_target}')
 
     # list_item_target = ['에이티세미콘']
@@ -111,7 +119,7 @@ def get_naver_finance_basic(info_comm):
 
     for idx, item in enumerate(list_item_target):
         print(f' > item : {item} <{idx+1}/{len(list_item_target)}>')
-        code = info_comm['item_code']['KRX'][item]
+        code = dict_item_code['KRX'][item]
 
         url = "https://navercomp.wisereport.co.kr/v2/company/c1010001.aspx?cmp_cd={}".format(code)
         req = requests.get(url).content
@@ -144,35 +152,77 @@ def get_naver_finance_basic(info_comm):
     # tablefmt='fancy_grid', 'psql'
     print(tabulate(df_fin_basic, headers='keys', tablefmt='psql', showindex=True, numalign='right'))
 
+    print('[get_naver_finance_basic]-END() <{} | {}>'.format(time_before, get_now('TIME')))
+
 
 def get_price_stock(info_comm):
-    print('[get_price_stock]')
+    time_before = get_now('TIME')
+    print('-' * 100)
+    print('[get_price_stock]-START() <{}>'.format(get_now('TIME')))
 
-    for src in info_comm['item_code'].keys():
-        print('> source : {}'.format(src))
+    dict_item_code = info_comm['dict_item_code']
+    list_item_src = list(dict_item_code.keys())
+
+    for src in list_item_src:
+        print(' > source : {}'.format(src))
 
         df_data_total = None
-        for item in info_comm['item_code'][src].keys():
-            print('  >> item : {}'.format(item))
+
+        list_items = list(dict_item_code[src].keys())
+
+        for idx, item in enumerate(list_items):
+            print('  - {:20s} <{}/{}>'.format(item, idx+1, len(list_items)))
 
             df_data_tmp = None
             if src in ['KRX', 'NASDAQ', 'S&P500']:
                 df_data_tmp = fdr.DataReader(
-                    info_comm['item_code'][src][item], info_comm['date_start'], info_comm['date_end']
+                    dict_item_code[src][item], info_comm['date_start'], info_comm['date_end']
                 )
             elif src in ['Material']:
                 df_data_tmp = quandl.get(
-                    info_comm['item_code'][src][item], trim_start=info_comm['date_start'], trim_end=info_comm['date_end']
+                    dict_item_code[src][item], trim_start=info_comm['date_start'], trim_end=info_comm['date_end']
                 )
             df_data_tmp['Item'] = item
             df_data_total = pd.concat([df_data_total, df_data_tmp], axis=0)
-        print(df_data_total)
 
-        list_col = ['Item'] + [col for col in df_data_total.columns if col not in ['Item']]
-        print(list_col)
+        list_col_info = ['Item']
+        list_col_show = list_col_info + [col for col in df_data_total.columns if col not in list_col_info]
+        df_data_total = df_data_total[list_col_show]
 
-        df_data_total = df_data_total[list_col]
+        list_col_round_3 = ['Change']
+        df_data_total[list_col_round_3] = df_data_total[list_col_round_3].applymap("{:.3f}".format)
+        df_data_total = df_data_total.reset_index()
+
         df_data_total.to_csv('{}/df_price_stock_{}.csv'.format(info_comm['path_output'], src))
+
+        print(df_data_total)
+        print(' > shape of df_data_total :', df_data_total.shape)
+        for col in df_data_total.columns:
+            print('  - col :', col)
+
+    print('[get_price_stock]-END() <{} | {}>'.format(time_before, get_now('TIME')))
+
+
+def filter_price_stock(info_comm):
+    time_before = get_now('TIME')
+    print('-' * 100)
+    print('[filter_price_stock]-START() <{}>'.format(get_now('TIME')))
+
+    col_filter = 'Change'
+
+    for src in info_comm['list_item_src']:
+        print(' > source : {}'.format(src))
+
+        df_price = pd.read_csv('{}/df_price_stock_{}.csv'.format(info_comm['path_output'], src), index_col=0)
+
+        df_price_filtered = df_price[(df_price[col_filter] > 0.25) & (df_price[col_filter] < 0.3)]
+
+        print(df_price_filtered)
+
+        df_price_filtered.to_csv('{}/df_price_filtered_{}.csv'.format(info_comm['path_output'], src))
+
+
+    print('[filter_price_stock]-END() <{} | {}>'.format(time_before, get_now('TIME')))
 
 
 def get_exchange_rate(info_comm):
@@ -180,7 +230,9 @@ def get_exchange_rate(info_comm):
 
 
 def get_kor_pdr():
-    print('[get_kor_pdr]')
+    time_before = get_now('TIME')
+    print('-' * 100)
+    print('[get_kor_pdr]-START() <{}>'.format(get_now('TIME')))
 
     api = Kbland()
     params = {
@@ -192,6 +244,8 @@ def get_kor_pdr():
     }
     df = api.get_price_index(**params)
     print(df.tail())
+
+    print('[get_kor_pdr]-END() <{} | {}>'.format(time_before, get_now('TIME')))
 
 
 if __name__ == "__main__":
