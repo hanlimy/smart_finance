@@ -228,7 +228,7 @@ tab3_box2 = html.Div([
 ])
 
 tab3 = html.Div([
-    html.H1('trace : POR/ECN/EIN, etc...'),
+    html.H1('trace : por/ecn/ein, etc...'),
     tab3_box1,
     html.Br(),
     tab3_box2,
@@ -341,5 +341,4 @@ def action_update_graph(xvar, yvar):
 ########################################################################################################################
 
 if __name__ == '__main__':
-    # main
     app.run_server(debug=False, host='0.0.0.0', port=8888)
