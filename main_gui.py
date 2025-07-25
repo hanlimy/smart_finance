@@ -228,7 +228,7 @@ tab3_box2 = html.Div([
 ])
 
 tab3 = html.Div([
-    html.H1('trace : por/ecn/ein, etc...'),
+    html.H1('trace : POR/ECN/EIN, etc...'),
     tab3_box1,
     html.Br(),
     tab3_box2,
